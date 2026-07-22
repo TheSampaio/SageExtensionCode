@@ -1,0 +1,112 @@
+{
+  "scopeName": "source.sg",
+  "name": "Sage",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords_blue" },
+    { "include": "#keywords_control_purple" },
+    { "include": "#storage_types_green" },
+    { "include": "#module_names_green" },
+    { "include": "#namespaces_green" },
+    { "include": "#constants" },
+    { "include": "#strings" },
+    { "include": "#functions" },
+    { "include": "#numbers" },
+    { "include": "#variables" }
+  ],
+  "repository": {
+    "strings": {
+      "name": "string.quoted.double.sage",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.sage",
+          "match": "\\\\."
+        },
+        {
+          "name": "variable.interpolation.sage",
+          "begin": "\\{",
+          "beginCaptures": {
+            "0": { "name": "keyword.control.interpolation.sage" }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": { "name": "keyword.control.interpolation.sage" }
+          },
+          "patterns": [
+            { "include": "source.sg" }
+          ]
+        }
+      ]
+    },
+    "keywords_blue": {
+      "patterns": [
+        {
+          "name": "keyword.other.sage",
+          "match": "\\b(func|var|const|module|use|struct|extern|type)\\b"
+        }
+      ]
+    },
+    "keywords_control_purple": {
+      "patterns": [
+        {
+          "name": "keyword.control.sage",
+          "match": "\\b(if|else|while|for|return|as|break|continue|unsafe|new|delete)\\b"
+        }
+      ]
+    },
+    "storage_types_green": {
+      "patterns": [
+        {
+          "name": "entity.name.type.sage",
+          "match": "\\b(i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|b8|c8|c16|c32|str|none|void|c_void|c_bool|c_char|c_schar|c_uchar|c_short|c_ushort|c_int|c_uint|c_long|c_ulong|c_longlong|c_ulonglong|c_float|c_double|c_size_t|c_ssize_t|c_intptr|c_uintptr)\\b"
+        }
+      ]
+    },
+    "module_names_green": {
+      "patterns": [
+        {
+          "name": "entity.name.type.sage",
+          "match": "(?<=\\b(use|module)\\s+)[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    },
+    "namespaces_green": {
+      "patterns": [
+        {
+          "name": "entity.name.namespace.sage",
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*::)"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.sage",
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.sage",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [ { "name": "constant.language.sage", "match": "\\b(true|false|null)\\b" } ]
+    },
+    "numbers": {
+      "patterns": [ { "name": "constant.numeric.sage", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" } ]
+    },
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.sage", "match": "//.*$" },
+        { "name": "comment.block.sage", "begin": "/\\*", "end": "\\*/" }
+      ]
+    }
+  }
+}

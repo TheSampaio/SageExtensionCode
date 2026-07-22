@@ -1,0 +1,77 @@
+{
+  "name": "sage-lang",
+  "displayName": "Sage Programming Language",
+  "version": "0.2.0",
+  "description": "Official Sage programming language extension: syntax highlighting, file icons, and a Test Explorer runner for .test.sg files.",
+  "publisher": "TheSampaio",
+  "license": "MIT",
+  "icon": "./icons/sage-icon.png",
+  "main": "./extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheSampaio/vscode-sage-programming-language.git"
+  },
+  "categories": [
+    "Programming Languages",
+    "Testing"
+  ],
+  "keywords": [
+    "sage",
+    "sage-lang",
+    "transpiler",
+    "systems"
+  ],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "activationEvents": [
+    "onLanguage:sage",
+    "workspaceContains:**/*.test.sg"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "sage",
+        "aliases": ["Sage", "sage"],
+        "extensions": [".sg"],
+        "configuration": "./configurations/language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sage",
+        "scopeName": "source.sg",
+        "path": "./syntaxes/sage.tmLanguage.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "sage-icons",
+        "label": "Sage Icons",
+        "path": "./icons/sage-icons.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "sage.runFile",
+        "title": "Sage: Run Current File",
+        "category": "Sage"
+      }
+    ],
+    "configuration": {
+      "title": "Sage",
+      "properties": {
+        "sage.command": {
+          "type": "string",
+          "default": "sage",
+          "markdownDescription": "Command used to invoke the Sage compiler. Use an absolute path to `sage.exe`, or a launcher such as `dotnet C:/path/to/Sage.dll`. Arguments are split on whitespace; the target `.sg` file is appended automatically."
+        },
+        "sage.testGlob": {
+          "type": "string",
+          "default": "**/*.test.sg",
+          "description": "Glob pattern used to discover Sage test files for the Test Explorer."
+        }
+      }
+    }
+  }
+}

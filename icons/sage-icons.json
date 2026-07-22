@@ -1,0 +1,13 @@
+{
+  "iconDefinitions": {
+    "sage_file": {
+      "iconPath": "./sage-file-icon.png" 
+    }
+  },
+  "fileExtensions": {
+    "sg": "sage_file"
+  },
+  "languageIds": {
+    "sage": "sage_file"
+  }
+}
