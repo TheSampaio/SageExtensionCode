@@ -6,7 +6,7 @@ documented in the Sage compiler repository.
 
 ## Features
 
-- **Syntax highlighting** for Sage (`.sg`) — keywords, the memory-safety keywords
+- **Syntax highlighting** for Sage (`.sg`) — keywords, memory and unsafe operations
   (`unsafe`, `new`, `delete`), types (fixed-width + C interop aliases such as `c_int`,
   `c_size_t`, `c_void`), modules, namespaces, strings with interpolation, and comments.
 - **Sage file icon** contributed as a language icon. Your chosen file icon theme
@@ -59,11 +59,47 @@ Call these contracts with `read(&counter)` and `increment(&mut counter)`. In
 Sage 0.9.0, parameters support borrows for the call duration and supported
 scalar/struct values. Sage 0.9.1 also supports local bindings such as
 `var view: &mut Counter = &mut counter;`: their loans remain live until the end
-of the lexical scope, blocking conflicting source access. Field-stored/returned
-references, strings, arrays, and FFI borrows require later compiler work.
+of the lexical scope, blocking conflicting source access. Sage 0.10.0 also permits
+borrowing structs containing fixed arrays of copyable values. Direct array
+borrows, field-stored/returned references, strings, and FFI borrows require later work.
 See the compiler's `docs/borrowing.md` for exact guarantees.
 The compiler performs semantic checks when invoked; the extension provides
 highlighting and execution/Test Explorer integration rather than live analysis.
+
+## Array values and compiler diagnostics (Sage 0.10.0)
+
+Fixed-array bindings, whole-array assignment, and Sage value parameters copy
+supported elements into independent storage. Mutating an array parameter no
+longer changes the caller's array:
+
+```sage
+func change(values: i32[2]): none { values[0] = 9; }
+func main(): none
+{
+    var values: i32[2] = { 1, 2 };
+    change(values); // values[0] remains 1.
+}
+```
+
+Copyability is inferred for numeric/boolean values and recursively composed
+structs and fixed arrays. Strings and native resources need further contracts.
+Direct native `extern` calls retain their trusted ABI behavior. See the compiler's
+`docs/value-copy.md` for supported contexts, copy costs, and migration details.
+
+Run Current File shows compiler and runtime diagnostics in the Sage output
+channel. Test Explorer marks a file as errored when the compiler or executed
+application returns a nonzero status. Relevant array diagnostics include:
+
+| Code | Meaning |
+|------|---------|
+| S181 | Wrong struct field or array element type |
+| S185 | Literal array index outside the declared range |
+| S186 | Dynamic array index outside the range during execution |
+| S188 | Unsupported array copy context or element layout |
+| S189 | Bind the returned containing struct locally before indexing its array field |
+
+Successful tests still report each `[PASS]`/`[FAIL]` assertion. These diagnostics
+are produced when the compiler runs; this extension does not claim live checks.
 
 ## Writing tests
 

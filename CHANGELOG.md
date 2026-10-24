@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.4.2]
+
+### Changed
+- Document Sage 0.10.0 array value copies and borrowing of structs with copyable
+  array fields, including the remaining lifetime and native ABI boundaries.
+- Explain compiler/runtime failure reporting and array diagnostics in Run Current
+  File and Test Explorer.
+
 ## [0.4.1]
 
 ### Added
