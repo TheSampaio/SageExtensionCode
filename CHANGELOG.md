@@ -2,6 +2,15 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.3.0]
+
+### Changed
+- Contribute the Sage image as a language icon and remove the standalone Sage
+  file icon theme. Existing icon themes, including Material Icon Theme, stay active.
+- Document file icon precedence and optional Material Icon Theme associations.
+- Handle quoted compiler paths and report nonzero compiler exit codes in the Test
+  Explorer and Run Current File output.
+
 ## [0.2.0]
 
 ### Added

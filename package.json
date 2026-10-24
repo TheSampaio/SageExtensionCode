@@ -1,12 +1,15 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.2.0",
-  "description": "Official Sage programming language extension: syntax highlighting, file icons, and a Test Explorer runner for .test.sg files.",
+  "version": "0.3.0",
+  "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
+  "scripts": {
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/TheSampaio/vscode-sage-programming-language.git"
@@ -34,6 +37,10 @@
         "id": "sage",
         "aliases": ["Sage", "sage"],
         "extensions": [".sg"],
+        "icon": {
+          "light": "./icons/sage-file-icon.png",
+          "dark": "./icons/sage-file-icon.png"
+        },
         "configuration": "./configurations/language-configuration.json"
       }
     ],
@@ -42,13 +49,6 @@
         "language": "sage",
         "scopeName": "source.sg",
         "path": "./syntaxes/sage.tmLanguage.json"
-      }
-    ],
-    "iconThemes": [
-      {
-        "id": "sage-icons",
-        "label": "Sage Icons",
-        "path": "./icons/sage-icons.json"
       }
     ],
     "commands": [
@@ -64,7 +64,7 @@
         "sage.command": {
           "type": "string",
           "default": "sage",
-          "markdownDescription": "Command used to invoke the Sage compiler. Use an absolute path to `sage.exe`, or a launcher such as `dotnet C:/path/to/Sage.dll`. Arguments are split on whitespace; the target `.sg` file is appended automatically."
+          "markdownDescription": "Command used to invoke the Sage compiler. Quote paths containing spaces, for example `dotnet \"C:/My Tools/Sage.dll\"`. The target `.sg` file is appended automatically."
         },
         "sage.testGlob": {
           "type": "string",

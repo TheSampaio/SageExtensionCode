@@ -11,25 +11,34 @@
 const vscode = require("vscode");
 const cp = require("child_process");
 const path = require("path");
-
-const PASS_RE = /^\s*\[PASS\]\s+(.+?)\s*$/;
-const FAIL_RE = /^\s*\[FAIL\]\s+(.+?)\s*$/;
+const { parseCommand } = require("./lib/command");
+const { parseResults } = require("./lib/test-results");
 
 /** Resolves the configured compiler command into { program, baseArgs }. */
 function resolveCompiler() {
   const command = vscode.workspace.getConfiguration("sage").get("command", "sage");
-  const parts = command.trim().split(/\s+/).filter(Boolean);
-  return { program: parts[0] || "sage", baseArgs: parts.slice(1) };
+  const [program, ...baseArgs] = parseCommand(command);
+  return { program, baseArgs };
 }
 
 /** Runs the Sage compiler on a file and resolves with its combined output. */
 function runCompiler(filePath) {
   return new Promise((resolve) => {
-    const { program, baseArgs } = resolveCompiler();
+    let program;
+    let baseArgs;
+    try {
+      ({ program, baseArgs } = resolveCompiler());
+    } catch (err) {
+      resolve({ output: err.message, code: -1 });
+      return;
+    }
     let output = "";
     let proc;
     try {
-      proc = cp.spawn(program, [...baseArgs, filePath], { cwd: path.dirname(filePath) });
+      proc = cp.spawn(program, [...baseArgs, filePath], {
+        cwd: path.dirname(filePath),
+        windowsHide: true
+      });
     } catch (err) {
       resolve({ output: `Failed to launch Sage compiler ('${program}'): ${err.message}`, code: -1 });
       return;
@@ -58,34 +67,14 @@ async function runCurrentFile(channel) {
   channel.show(true);
   channel.appendLine(`> Running ${path.basename(filePath)} ...\n`);
 
-  const { output } = await runCompiler(filePath);
+  const { output, code } = await runCompiler(filePath);
   channel.appendLine(output.trimEnd());
+  if (code !== 0) channel.appendLine(`Sage exited with code ${code}.`);
 }
 
 // --------------------------------------------------------------------------
 // Test Explorer
 // --------------------------------------------------------------------------
-
-/** Parses "[PASS]/[FAIL] name (detail)" lines out of compiler output. */
-function parseResults(output) {
-  const results = [];
-  for (const line of output.split(/\r?\n/)) {
-    let m = PASS_RE.exec(line);
-    if (m) {
-      results.push({ name: m[1], passed: true, detail: "" });
-      continue;
-    }
-    m = FAIL_RE.exec(line);
-    if (m) {
-      const raw = m[1];
-      const paren = raw.indexOf(" (");
-      const name = paren >= 0 ? raw.slice(0, paren) : raw;
-      const detail = paren >= 0 ? raw.slice(paren + 1) : "";
-      results.push({ name, passed: false, detail });
-    }
-  }
-  return results;
-}
 
 function testGlob() {
   return vscode.workspace.getConfiguration("sage").get("testGlob", "**/*.test.sg");
@@ -115,10 +104,14 @@ async function discoverAllTests(controller) {
   toDelete.forEach((id) => controller.items.delete(id));
 }
 
-async function runFileTest(run, fileItem) {
+async function runFileTest(controller, run, fileItem) {
   run.started(fileItem);
   const started = Date.now();
-  const { output } = await runCompiler(fileItem.uri.fsPath);
+  const { output, code } = await runCompiler(fileItem.uri.fsPath);
+  if (code !== 0) {
+    run.errored(fileItem, new vscode.TestMessage(output.trim() || `Sage exited with code ${code}.`));
+    return;
+  }
   const results = parseResults(output);
 
   if (results.length === 0) {
@@ -134,9 +127,9 @@ async function runFileTest(run, fileItem) {
     const childId = `${fileItem.id}::${r.name}`;
     let child = fileItem.children.get(childId);
     if (!child) {
-      child = run ? runControllerCreate(fileItem, childId, r.name) : null;
+      child = controller.createTestItem(childId, r.name, fileItem.uri);
+      fileItem.children.add(child);
     }
-    if (!child) continue;
 
     run.started(child);
     if (r.passed) {
@@ -155,15 +148,6 @@ async function runFileTest(run, fileItem) {
   }
 }
 
-// Small helper to create child items via the owning controller (captured on the file item).
-function runControllerCreate(fileItem, id, label) {
-  const controller = fileItem.__controller;
-  if (!controller) return null;
-  const child = controller.createTestItem(id, label, fileItem.uri);
-  fileItem.children.add(child);
-  return child;
-}
-
 async function runHandler(controller, request, token) {
   const run = controller.createTestRun(request);
   const queue = [];
@@ -174,13 +158,19 @@ async function runHandler(controller, request, token) {
     controller.items.forEach((t) => queue.push(t));
   }
 
-  for (const test of queue) {
-    if (token.isCancellationRequested) break;
-    if (request.exclude && request.exclude.includes(test)) continue;
-    await runFileTest(run, test);
+  const visited = new Set();
+  try {
+    for (const test of queue) {
+      if (token.isCancellationRequested) break;
+      const fileItem = controller.items.get(test.uri.toString());
+      if (!fileItem || visited.has(fileItem.id)) continue;
+      if (request.exclude && request.exclude.includes(fileItem)) continue;
+      visited.add(fileItem.id);
+      await runFileTest(controller, run, fileItem);
+    }
+  } finally {
+    run.end();
   }
-
-  run.end();
 }
 
 // --------------------------------------------------------------------------
@@ -197,14 +187,6 @@ function activate(context) {
 
   const controller = vscode.tests.createTestController("sageTests", "Sage Tests");
   context.subscriptions.push(controller);
-
-  // Tag each file item with its controller so children can be created lazily.
-  const originalCreate = controller.createTestItem.bind(controller);
-  controller.createTestItem = (id, label, uri) => {
-    const item = originalCreate(id, label, uri);
-    item.__controller = controller;
-    return item;
-  };
 
   controller.resolveHandler = async (item) => {
     if (!item) await discoverAllTests(controller);
