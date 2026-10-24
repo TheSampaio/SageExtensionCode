@@ -75,6 +75,14 @@ This extension is authored in plain JavaScript, so it runs without a build step.
 Press `F5` in VS Code to launch an Extension Development Host.
 Run `npm test` to check command parsing, test output parsing, and the extension manifest.
 
+Install development tools with `npm ci --ignore-scripts`, then run `npm run check`
+and `npm run package` to produce a local VSIX. Development dependencies and tests
+are excluded from that package. The Azure Identity dependency of the packaging
+tool is fixed at 4.13.0 to stay on its supported MSAL 3 line; later Identity
+versions currently pull the MSAL advisory GHSA-xcx6-jx8p-x3h5. Recheck this pin
+when upgrading the packaging tool. Its MSAL dependency uses only `uuid.v4()`;
+the compatible CommonJS UUID 11.1.1 override avoids GHSA-w5hq-g745-h8pq.
+
 ## License
 
 [MIT](./LICENSE) © Kellvyn Sampaio

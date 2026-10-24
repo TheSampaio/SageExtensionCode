@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.3.1]
+
+### Changed
+- Add a reproducible VSIX packaging command and lock development dependencies.
+- Exclude development files and dependencies from the shipped extension.
+- Remove the duplicate Sage prefix in the Run Current File command palette label.
+
 ## [0.3.0]
 
 ### Changed

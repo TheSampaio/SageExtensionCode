@@ -1,14 +1,16 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js"
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js",
+    "check": "node --check extension.js",
+    "package": "vsce package --no-dependencies"
   },
   "repository": {
     "type": "git",
@@ -35,8 +37,13 @@
     "languages": [
       {
         "id": "sage",
-        "aliases": ["Sage", "sage"],
-        "extensions": [".sg"],
+        "aliases": [
+          "Sage",
+          "sage"
+        ],
+        "extensions": [
+          ".sg"
+        ],
         "icon": {
           "light": "./icons/sage-file-icon.png",
           "dark": "./icons/sage-file-icon.png"
@@ -54,7 +61,7 @@
     "commands": [
       {
         "command": "sage.runFile",
-        "title": "Sage: Run Current File",
+        "title": "Run Current File",
         "category": "Sage"
       }
     ],
@@ -72,6 +79,17 @@
           "description": "Glob pattern used to discover Sage test files for the Test Explorer."
         }
       }
+    }
+  },
+  "devDependencies": {
+    "@vscode/vsce": "3.9.2"
+  },
+  "overrides": {
+    "@vscode/vsce": {
+      "@azure/identity": "4.13.0"
+    },
+    "@azure/msal-node": {
+      "uuid": "11.1.1"
     }
   }
 }

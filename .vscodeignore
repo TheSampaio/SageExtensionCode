@@ -1,6 +1,13 @@
+.git/**
 .vscode/**
 .vscode-test/**
+node_modules/**
+test/**
+docs/**
+package-lock.json
 .gitignore
+.vscodeignore
+*.vsix
 jsconfig.json
 CLAUDE.md
 **/*.map
