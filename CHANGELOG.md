@@ -2,6 +2,12 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.4.1]
+
+### Added
+- Document Sage 0.9.1 lexical borrow bindings and add a real-engine grammar
+  regression for local `&T` / `&mut T` declarations and initializers.
+
 ## [0.4.0]
 
 ### Added

@@ -56,9 +56,12 @@ func increment(counter: &mut Counter): none { counter.value++; }
 ```
 
 Call these contracts with `read(&counter)` and `increment(&mut counter)`. In
-Sage 0.9.0, borrows are limited to the call duration and supported scalar/struct
-values. Stored/returned references, strings, arrays, and FFI borrows require
-later compiler work. See the compiler's `docs/borrowing.md` for exact guarantees.
+Sage 0.9.0, parameters support borrows for the call duration and supported
+scalar/struct values. Sage 0.9.1 also supports local bindings such as
+`var view: &mut Counter = &mut counter;`: their loans remain live until the end
+of the lexical scope, blocking conflicting source access. Field-stored/returned
+references, strings, arrays, and FFI borrows require later compiler work.
+See the compiler's `docs/borrowing.md` for exact guarantees.
 The compiler performs semantic checks when invoked; the extension provides
 highlighting and execution/Test Explorer integration rather than live analysis.
 

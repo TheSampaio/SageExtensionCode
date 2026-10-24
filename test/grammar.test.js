@@ -42,6 +42,14 @@ test("highlights an explicit mutable borrow", () => {
   assert.ok(scopesAt(line, "mut").includes("storage.modifier.borrow.sage"));
 });
 
+test("tokenizes borrowed local bindings and their initializers", () => {
+  const line = "var view: &mut Counter = &mut owner;";
+  const tokens = grammar.tokenizeLine(line, textmate.INITIAL).tokens;
+  assert.equal(tokens.filter((token) => token.scopes.includes("keyword.operator.borrow.sage")).length, 2);
+  assert.equal(tokens.filter((token) => token.scopes.includes("storage.modifier.borrow.sage")).length, 2);
+  assert.ok(scopesAt(line, "view").includes("variable.other.sage"));
+});
+
 test("keeps mut contextual and distinguishes logical and from borrowing", () => {
   assert.ok(scopesAt("var mut: i32 = 1;", "mut").includes("variable.other.sage"));
   assert.ok(!scopesAt("var both: b8 = true && false;", "&&").includes("keyword.operator.borrow.sage"));
