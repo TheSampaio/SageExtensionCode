@@ -2,6 +2,17 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.4.0]
+
+### Added
+- Highlight explicit `&T`, `&mut T`, `&value`, and `&mut value` borrowing syntax
+  introduced in Sage 0.9.0.
+- Grammar tests using the VS Code TextMate and Oniguruma engines.
+
+### Changed
+- Scope imported module names as namespaces with explicit keyword/name captures.
+- Keep `mut` contextual and distinguish borrowing from logical `&&`.
+
 ## [0.3.1]
 
 ### Changed

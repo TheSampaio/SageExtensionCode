@@ -3,10 +3,11 @@
   "name": "Sage",
   "patterns": [
     { "include": "#comments" },
+    { "include": "#module_names_green" },
+    { "include": "#borrowing" },
     { "include": "#keywords_blue" },
     { "include": "#keywords_control_purple" },
     { "include": "#storage_types_green" },
-    { "include": "#module_names_green" },
     { "include": "#namespaces_green" },
     { "include": "#constants" },
     { "include": "#strings" },
@@ -15,6 +16,17 @@
     { "include": "#variables" }
   ],
   "repository": {
+    "borrowing": {
+      "patterns": [
+        {
+          "match": "(?<!&)(&)(?!&)(?:\\s*(mut)\\b)?",
+          "captures": {
+            "1": { "name": "keyword.operator.borrow.sage" },
+            "2": { "name": "storage.modifier.borrow.sage" }
+          }
+        }
+      ]
+    },
     "strings": {
       "name": "string.quoted.double.sage",
       "begin": "\"",
@@ -67,8 +79,11 @@
     "module_names_green": {
       "patterns": [
         {
-          "name": "entity.name.type.sage",
-          "match": "(?<=\\b(use|module)\\s+)[a-zA-Z_][a-zA-Z0-9_]*"
+          "match": "\\b(use|module)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.other.sage" },
+            "2": { "name": "entity.name.namespace.sage" }
+          }
         }
       ]
     },

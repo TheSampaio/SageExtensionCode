@@ -45,6 +45,23 @@ For a deliberate Material Icon Theme override, use that theme's documented
 choose an icon name supported by your installed theme. This is optional; it does
 not require switching themes.
 
+## Borrowing syntax (Sage 0.9.0+)
+
+The grammar recognizes explicit shared and mutable function borrows:
+
+```sage
+struct Counter { value: i32; }
+func read(counter: &Counter): i32 { return counter.value; }
+func increment(counter: &mut Counter): none { counter.value++; }
+```
+
+Call these contracts with `read(&counter)` and `increment(&mut counter)`. In
+Sage 0.9.0, borrows are limited to the call duration and supported scalar/struct
+values. Stored/returned references, strings, arrays, and FFI borrows require
+later compiler work. See the compiler's `docs/borrowing.md` for exact guarantees.
+The compiler performs semantic checks when invoked; the extension provides
+highlighting and execution/Test Explorer integration rather than live analysis.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print

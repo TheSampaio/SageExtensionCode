@@ -1,14 +1,14 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js",
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js",
     "check": "node --check extension.js",
     "package": "vsce package --no-dependencies"
   },
@@ -82,7 +82,9 @@
     }
   },
   "devDependencies": {
-    "@vscode/vsce": "3.9.2"
+    "@vscode/vsce": "3.9.2",
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.3.2"
   },
   "overrides": {
     "@vscode/vsce": {
