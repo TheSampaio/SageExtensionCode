@@ -2,6 +2,15 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.8.0]
+
+### Changed
+- Document Sage 0.19/0.20: `http_client` / `http_server`, Sage-only std directories,
+  and compiler-owned native support in `Runtime/include`.
+- Document safe bounded ASCII file acquisition with `create_bytes`, its exact
+  limits and failure behavior, and S188/S122 array-cast diagnostics.
+- Retain language file icons and coexistence with Material Icon Theme.
+
 ## [0.7.0]
 
 ### Changed

@@ -118,7 +118,7 @@ func main(): none
 
 Ordinary console output retains its public API. Legacy `console.read_line` now
 requires unsafe because its buffer has no capacity contract. Shell-based
-`http.fetch`, `post`, and `download` also require unsafe because arguments are
+`http_client.fetch`, `post`, and `download` also require unsafe because arguments are
 interpolated without escaping. Those APIs remain available for explicit trusted
 use; this release does not make their storage, transport, or resource lifetimes safe.
 See compiler `docs/native-boundaries.md` for the migration and exact limits.
@@ -241,12 +241,33 @@ func write_marker(value: &mut ByteFile): b8
 clean EOF has both flags false; an empty handle or I/O failure has `failed=true`.
 Read `value` only when `has_value` is true. All 256 byte values are supported.
 
+Since Sage 0.20.0, `create_bytes(path: u8[260], length: u16)` safely creates/truncates
+a binary file from 1..259 printable ASCII bytes. The selected prefix is validated
+before native open; embedded zero, controls, non-ASCII, and invalid lengths return
+an empty owner. Remaining array bytes are ignored; no terminator is needed.
+
+```rust
+var path: u8[260] = { 97, 46, 98, 105, 110 }; // a.bin
+var length: u16 = 5;
+var owner: ByteFile = byte_file::create_bytes(path, length);
+var closed: b8 = byte_file::close(owner);
+```
+
+S188 rejects casts that fabricate a fixed array or turn one into a non-pointer
+value. Use an array literal or checked copy. Explicit array-to-pointer casts for
+native interop still require unsafe (S122).
+
 `create(path: str)` remains **unsafe** and creates/truncates a binary file: legacy
 strings have unchecked native lifetimes. Creation failure returns an empty owner.
 `empty()` needs no unsafe context. Existing unsafe `file` wrappers are unchanged.
 Implicit cleanup closes best-effort; use consuming `close` when its result matters.
-This is not a complete safe text/path or buffer API. A std distribution must ship
-both `byte_file.sg` and `sage_byte_file.h`; see compiler `docs/byte-files.md`.
+This is not a complete safe text/path or buffer API. The project's `std` directory
+contains only `.sg` sources. Native support ships beside `Sage.dll` in
+`Runtime/include`; see compiler `docs/byte-files.md`.
+
+Since Sage 0.19.0, use `http_client.sg` / `use http_client;` and `http_server.sg` /
+`use http_server;`. Update qualified calls to `http_client::...` and
+`http_server::...`; the old `http` and `server` imports report S007.
 
 Run Current File and Test Explorer retain native I/O results and ownership errors,
 including S164 for unsafe acquisition and S140 for reuse after consuming close.
