@@ -83,7 +83,7 @@ func main(): none
 
 Copyability is inferred for numeric/boolean values and recursively composed
 structs and fixed arrays. Strings and native resources need further contracts.
-Direct native `extern` calls retain their trusted ABI behavior. See the compiler's
+Direct native `extern` calls require `unsafe` in Sage 0.11.0; their ABI remains trusted. See the compiler's
 `docs/value-copy.md` for supported contexts, copy costs, and migration details.
 
 Run Current File shows compiler and runtime diagnostics in the Sage output
@@ -92,6 +92,8 @@ application returns a nonzero status. Relevant array diagnostics include:
 
 | Code | Meaning |
 |------|---------|
+| S146 | Allocation must directly initialize a local owning binding |
+| S164 | Native or unsafe Sage call needs an explicit unsafe context |
 | S181 | Wrong struct field or array element type |
 | S185 | Literal array index outside the declared range |
 | S186 | Dynamic array index outside the range during execution |
@@ -100,6 +102,30 @@ application returns a nonzero status. Relevant array diagnostics include:
 
 Successful tests still report each `[PASS]`/`[FAIL]` assertion. These diagnostics
 are produced when the compiler runs; this extension does not claim live checks.
+
+## Native call migration (Sage 0.11.0)
+
+Direct calls to functions declared in `extern` now require a local unsafe block
+or an `unsafe func`. The grammar already highlights both forms:
+
+```sage
+extern native("stdlib.h") { func abs(value: c_int): c_int; }
+func main(): none
+{
+    unsafe { var value: i32 = native::abs(-2) as i32; }
+}
+```
+
+Ordinary console output retains its public API. Legacy `console.read_line` now
+requires unsafe because its buffer has no capacity contract. Shell-based
+`http.fetch`, `post`, and `download` also require unsafe because arguments are
+interpolated without escaping. Those APIs remain available for explicit trusted
+use; this release does not make their storage, transport, or resource lifetimes safe.
+See compiler `docs/native-boundaries.md` for the migration and exact limits.
+
+Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
+bounds rules. When a boundary is missing, Run Current File displays `S164`, and
+Test Explorer reports the compiler's nonzero result as a file error.
 
 ## Writing tests
 

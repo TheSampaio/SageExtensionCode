@@ -2,6 +2,12 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.4.3]
+
+### Changed
+- Document Sage 0.11.0 explicit unsafe native calls and legacy input/HTTP helper
+  migration, including S146 allocation ownership and S164 call diagnostics.
+
 ## [0.4.2]
 
 ### Changed
