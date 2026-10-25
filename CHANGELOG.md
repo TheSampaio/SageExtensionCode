@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.9.0]
+
+### Changed
+- Document Sage 0.21.0 owned byte buffers: checked initialized-prefix reads,
+  exclusive bounded mutation, allocation failure, and consuming release.
+- Explain ownership diagnostics and remaining slice, resize, text and bulk-I/O
+  boundaries. Preserve language icons and Material Icon Theme coexistence.
+
 ## [0.8.0]
 
 ### Changed

@@ -272,6 +272,45 @@ Since Sage 0.19.0, use `http_client.sg` / `use http_client;` and `http_server.sg
 Run Current File and Test Explorer retain native I/O results and ownership errors,
 including S164 for unsafe acquisition and S140 for reuse after consuming close.
 
+## Owned byte buffers (Sage 0.21.0)
+
+`use byte_buffer;` provides exclusive `ByteBuffer` owners with fixed `u32`
+capacity and a separately tracked initialized length. Creation, reads and
+mutation require no raw pointers or legacy strings.
+
+```rust
+use byte_buffer;
+
+func example(): b8
+{
+    var capacity: u32 = 4;
+    var owner: ByteBuffer = byte_buffer::create(capacity);
+    var byte: u8 = 42;
+    var pushed: b8 = byte_buffer::push(&mut owner, byte);
+    var index: u32 = 0;
+    var read: BufferRead = byte_buffer::read(&owner, index);
+    byte_buffer::release(owner);
+    return pushed && read.has_value && read.value == 42;
+}
+```
+
+`read` borrows shared storage and returns `BufferRead { value, has_value }`.
+`write` replaces an initialized position; `push` appends within capacity;
+`clear` resets length while retaining storage. These mutations require `&mut`.
+Unavailable reads return `has_value=false` / `value=0`; failed writes and pushes
+preserve contents and length. Spare capacity and cleared bytes are unreadable.
+Clear does not securely erase storage. All 256 byte values are supported.
+
+`create(0)` is a valid allocated owner. Allocation failure returns an empty owner;
+use `is_allocated(&owner)` or `owner != null`. Empty owners report zero length/
+capacity and fail read/write/push safely. `release` consumes a named owner; scope
+cleanup also frees storage. S140 rejects reuse after release/move, S171 rejects
+shared mutation, and S178 rejects consumption during a live loan.
+
+Native support ships in compiler `Runtime/include`; std remains Sage-only.
+Resizing, slices, bulk I/O and general owned strings remain future work. See
+compiler `docs/byte-buffers.md` and `Sandbox/examples/owned_byte_buffer.sg`.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print
