@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.5.2]
+
+### Changed
+- Document Sage 0.14.0 shared/mutable native resource parameters and lexical
+  borrows, reborrowing, and move/lifetime conflict diagnostics.
+- Clarify that borrowing does not transfer ownership and that native operations
+  inside wrappers still rely on reviewed unsafe contracts.
+
 ## [0.5.1]
 
 ### Changed

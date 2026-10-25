@@ -127,7 +127,7 @@ Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
 bounds rules. When a boundary is missing, Run Current File displays `S164`, and
 Test Explorer reports the compiler's nonzero result as a file error.
 
-## Native resources (Sage 0.13.0)
+## Native resources (Sage 0.14.0)
 
 The grammar highlights contextual resource names, native types, and destructors,
 including declarations split across lines:
@@ -154,9 +154,26 @@ handle even when it reports an error. Inside unsafe, `owner as FILE*` exposes a
 temporary alias that the caller must not retain, release, or adopt independently.
 Native validity and alias lifetimes remain trusted.
 
+Sage 0.14.0 also supports `&OwnedFile` and `&mut OwnedFile` parameters and lexical
+borrowed locals. Borrowing never adopts the handle. Active loans prevent owner
+moves, mutable loans prevent competing access, and shared/const access cannot be
+upgraded to mutable. Calls require explicit borrows and reject conflicting aliases
+or effectful arguments alongside borrowed arguments. Resource borrows cannot be
+moved into owners or returned. Existing borrow scopes and diagnostics apply.
+
+```sage
+func is_empty(value: &OwnedFile): b8
+{
+    unsafe { return (value as FILE*) == (0 as FILE*); }
+}
+```
+
+The wrapper author must preserve shared/mutable access and the native handle's
+validity. Raw aliases created inside unsafe are not lifetime checked.
+
 `S190` identifies invalid destructor/representation contracts; `S191` reports
 resource operations that remain disabled; `S192` rejects unsupported adoption or
-handle casts. Resource borrows, value parameters/returns, globals, fields, arrays,
+handle casts. Owning value parameters/returns, globals, fields, arrays,
 and safe file APIs are not enabled yet. See compiler `docs/native-resource-contracts.md`.
 Ordinary variables named `resource` or `drop` retain identifier highlighting.
 
