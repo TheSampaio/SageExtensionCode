@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.6.2]
+
+### Fixed
+- Correct the repository metadata to the user-confirmed `TheSampaio/SageExtensionCode`.
+- Document the independent extension source branch `codex/sage-extension` while
+  preserving the repository's existing wrapper history on `main`.
+
 ## [0.6.1]
 
 ### Changed

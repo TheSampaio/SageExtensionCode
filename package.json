@@ -1,7 +1,7 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheSampaio/vscode-sage-programming-language.git"
+    "url": "https://github.com/TheSampaio/SageExtensionCode.git"
   },
   "categories": [
     "Programming Languages",

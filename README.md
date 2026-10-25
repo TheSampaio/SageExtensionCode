@@ -246,6 +246,12 @@ Open the **Testing** view and press *Run* — each assertion shows up as an indi
 
 ## Development
 
+The extension source is published in
+[`TheSampaio/SageExtensionCode`, branch `codex/sage-extension`](https://github.com/TheSampaio/SageExtensionCode/tree/codex/sage-extension).
+The existing `main` contains the outer workspace wrapper with an independent
+history. Clone the source branch directly for development; do not add the nested
+local checkout to the wrapper as a Git submodule/gitlink.
+
 This extension is authored in plain JavaScript, so it runs without a build step.
 Press `F5` in VS Code to launch an Extension Development Host.
 Run `npm test` to check command parsing, test output parsing, and the extension manifest.
