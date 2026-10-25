@@ -127,7 +127,7 @@ Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
 bounds rules. When a boundary is missing, Run Current File displays `S164`, and
 Test Explorer reports the compiler's nonzero result as a file error.
 
-## Native resource declarations (Sage 0.12.0)
+## Native resources (Sage 0.13.0)
 
 The grammar highlights contextual resource names, native types, and destructors,
 including declarations split across lines:
@@ -141,10 +141,23 @@ extern native("stdio.h")
 }
 ```
 
-This compiler increment validates declaration metadata and native origin. It does
-not enable resource values, automatic resource cleanup, or a safe file API yet.
+Sage 0.12.0 introduced validated declarations; 0.13.0 adds local owners. Inside
+unsafe, the exact declared native pointer can directly initialize an owner with
+`as OwnedFile`. The caller must establish exclusive ownership of a valid handle
+or null. Initializing another local from a named owner moves it; the source
+becomes unavailable. Scope exit releases non-null handles in reverse declaration
+order, including early returns. Const owners also support moves and cleanup.
+
+Implicit cleanup makes one destructor call and discards any integer status; it
+does not retry or propagate failure. The destructor contract must consume the
+handle even when it reports an error. Inside unsafe, `owner as FILE*` exposes a
+temporary alias that the caller must not retain, release, or adopt independently.
+Native validity and alias lifetimes remain trusted.
+
 `S190` identifies invalid destructor/representation contracts; `S191` reports
-resource operations that remain disabled. See compiler `docs/native-resource-contracts.md`.
+resource operations that remain disabled; `S192` rejects unsupported adoption or
+handle casts. Resource borrows, value parameters/returns, globals, fields, arrays,
+and safe file APIs are not enabled yet. See compiler `docs/native-resource-contracts.md`.
 Ordinary variables named `resource` or `drop` retain identifier highlighting.
 
 ## Writing tests

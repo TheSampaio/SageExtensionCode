@@ -2,6 +2,15 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.5.1]
+
+### Changed
+- Document Sage 0.13.0 local native resource adoption, moves, nullable scope
+  cleanup, trusted raw-handle access, and S192 diagnostics.
+- Keep the exact boundary explicit: resource borrows, value parameters/returns,
+  fields, arrays, and safe file APIs are not enabled yet. Integer destructor
+  status is discarded by single-attempt implicit cleanup.
+
 ## [0.5.0]
 
 ### Added
