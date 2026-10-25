@@ -69,6 +69,11 @@ test("highlights a contextual native resource declaration", () => {
   assert.ok(scopesAt(line, "fclose").includes("entity.name.function.destructor.sage"));
 });
 
+test("highlights safe resource presence queries", () => {
+  assert.ok(scopesAt("var empty: b8 = owner == null;", "null").includes("constant.language.sage"));
+  assert.ok(scopesAt("var present: b8 = null != owner;", "owner").includes("variable.other.sage"));
+});
+
 test("keeps resource declaration scopes across lines and ends at the semicolon", () => {
   let state = textmate.INITIAL;
   const lines = ["resource OwnedFile:", "    FILE*", "    drop", "    fclose;", "var drop: i32 = 1;"];

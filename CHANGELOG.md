@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.6.1]
+
+### Changed
+- Document Sage 0.17.0 safe resource null comparisons, contextual name shadowing,
+  S195 boundaries, and prior local evaluation in consuming calls.
+- Update the resource presence example to use safe Sage and validate contextual
+  null tokenization with the actual TextMate/Oniguruma engine.
+
 ## [0.6.0]
 
 ### Changed

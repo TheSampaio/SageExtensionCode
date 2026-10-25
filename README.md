@@ -127,7 +127,7 @@ Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
 bounds rules. When a boundary is missing, Run Current File displays `S164`, and
 Test Explorer reports the compiler's nonzero result as a file error.
 
-## Native resources (Sage 0.16.0)
+## Native resources (Sage 0.17.0)
 
 The grammar highlights contextual resource names, native types, and destructors,
 including declarations split across lines:
@@ -164,12 +164,20 @@ moved into owners or returned. Existing borrow scopes and diagnostics apply.
 ```sage
 func is_empty(value: &OwnedFile): b8
 {
-    unsafe { return (value as FILE*) == (0 as FILE*); }
+    return value == null;
 }
 ```
 
 The wrapper author must preserve shared/mutable access and the native handle's
 validity. Raw aliases created inside unsafe are not lifetime checked.
+
+Sage 0.17.0 supports safe `owner == null` / `owner != null` queries and their
+symmetric forms on named resource owners and borrows. They return a boolean
+without exposing a raw pointer or transferring ownership. Availability and loan
+checks remain active. `null` is contextual when no binding with that name exists;
+it does not construct a resource or introduce general raw-pointer null values.
+Bind presence results before passing them alongside consumed arguments (S194),
+including nested expressions. Invalid resource/null comparisons report S195.
 
 Sage 0.15/0.16 adds owning returns and consuming resource parameters. A return
 transfers a named local owner or owning parameter; its result must directly
