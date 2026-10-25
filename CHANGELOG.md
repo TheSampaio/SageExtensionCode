@@ -2,6 +2,15 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.10.0]
+
+### Changed
+- Document Sage 0.22.0 bounded block file transfers through `ByteBuffer`,
+  independent count/EOF/failure results, and partial progress.
+- Explain read replacement, initialized-source bounds, zero-limit no-ops,
+  buffer preservation before I/O, and the new std dependency.
+- Preserve language icons and the selected Material Icon Theme.
+
 ## [0.9.0]
 
 ### Changed

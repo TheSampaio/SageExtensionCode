@@ -272,6 +272,26 @@ Since Sage 0.19.0, use `http_client.sg` / `use http_client;` and `http_server.sg
 Run Current File and Test Explorer retain native I/O results and ownership errors,
 including S164 for unsafe acquisition and S140 for reuse after consuming close.
 
+Since Sage 0.22.0, `byte_file` imports `byte_buffer` and provides bounded block
+transfers. Include both `.sg` modules in local std distributions.
+
+| Call | Borrow contract | Result |
+| --- | --- | --- |
+| `read_buffer(&mut file, &mut buffer, limit)` | Exclusive file and target | Replaces initialized contents with received bytes, bounded by capacity |
+| `write_buffer(&mut file, &buffer, limit)` | Exclusive file, shared source | Writes an initialized prefix, bounded by length |
+
+Both return `ByteTransfer { count: u32; eof: b8; failed: b8; }`. Count remains
+meaningful on partial failure. A clean EOF may include bytes; an exact read does
+not predict EOF. Once native input starts, target length becomes count, including
+zero at EOF/error, and old suffix bytes are hidden. Invalid owners/limits and
+positioning failures preserve the target. Zero limit with valid owners is a
+no-op that preserves contents and does not probe EOF.
+
+Writes preserve the source and always return `eof=false`. A short write is a
+failure; transferred bytes are not rolled back. Successful output can remain
+buffered, so check flush and consuming close separately. There is no automatic
+retry after native errors. See compiler `docs/byte-files.md` for the full contract.
+
 ## Owned byte buffers (Sage 0.21.0)
 
 `use byte_buffer;` provides exclusive `ByteBuffer` owners with fixed `u32`
@@ -308,7 +328,7 @@ cleanup also frees storage. S140 rejects reuse after release/move, S171 rejects
 shared mutation, and S178 rejects consumption during a live loan.
 
 Native support ships in compiler `Runtime/include`; std remains Sage-only.
-Resizing, slices, bulk I/O and general owned strings remain future work. See
+Resizing, slices and general owned strings remain future work. See
 compiler `docs/byte-buffers.md` and `Sandbox/examples/owned_byte_buffer.sg`.
 
 ## Writing tests
