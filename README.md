@@ -220,6 +220,37 @@ conflicts/effectful arguments. Resource globals, fields, arrays, and safe file
 APIs are not enabled yet. See compiler `docs/native-resource-contracts.md`.
 Ordinary variables named `resource` or `drop` retain identifier highlighting.
 
+## Owned byte files (Sage 0.18.0)
+
+`use byte_file;` imports `ByteFile` ownership and a bounded byte API. `is_open`
+takes a shared borrow; `read_byte`, `write_byte`, `seek_start`, and `flush` take
+mutable borrows. `close(owner)` consumes ownership and returns its native close
+status as a boolean, including failure. The owner cannot be reused afterward.
+
+```sage
+use byte_file;
+
+func write_marker(value: &mut ByteFile): b8
+{
+    var byte: u8 = 255;
+    return byte_file::write_byte(&mut value, byte);
+}
+```
+
+`ByteRead` returns `value`, `has_value`, and `failed`. Data has `has_value=true`;
+clean EOF has both flags false; an empty handle or I/O failure has `failed=true`.
+Read `value` only when `has_value` is true. All 256 byte values are supported.
+
+`create(path: str)` remains **unsafe** and creates/truncates a binary file: legacy
+strings have unchecked native lifetimes. Creation failure returns an empty owner.
+`empty()` needs no unsafe context. Existing unsafe `file` wrappers are unchanged.
+Implicit cleanup closes best-effort; use consuming `close` when its result matters.
+This is not a complete safe text/path or buffer API. A std distribution must ship
+both `byte_file.sg` and `sage_byte_file.h`; see compiler `docs/byte-files.md`.
+
+Run Current File and Test Explorer retain native I/O results and ownership errors,
+including S164 for unsafe acquisition and S140 for reuse after consuming close.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print

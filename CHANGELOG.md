@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.7.0]
+
+### Changed
+- Document Sage 0.18.0 owned byte files: borrowed byte I/O, explicit EOF/failure,
+  positioning/flush, and consuming close with status.
+- Preserve the explicit unsafe path-acquisition boundary and the legacy file API.
+- Explain shipping the native std header and ownership diagnostics for close.
+
 ## [0.6.2]
 
 ### Fixed
