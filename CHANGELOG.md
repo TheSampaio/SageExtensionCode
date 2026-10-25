@@ -2,6 +2,15 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.6.0]
+
+### Changed
+- Document Sage 0.15/0.16 owning resource returns and consuming parameters,
+  direct producer binding, named consuming arguments, and S193/S194 diagnostics.
+- Explain caller invalidation, callee cleanup, parameter destruction order,
+  same-call ownership/borrow conflicts, and stable argument requirements.
+- Preserve the active file icon theme and the native unsafe/aggregate limits.
+
 ## [0.5.2]
 
 ### Changed

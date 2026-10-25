@@ -127,7 +127,7 @@ Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
 bounds rules. When a boundary is missing, Run Current File displays `S164`, and
 Test Explorer reports the compiler's nonzero result as a file error.
 
-## Native resources (Sage 0.14.0)
+## Native resources (Sage 0.16.0)
 
 The grammar highlights contextual resource names, native types, and destructors,
 including declarations split across lines:
@@ -171,10 +171,45 @@ func is_empty(value: &OwnedFile): b8
 The wrapper author must preserve shared/mutable access and the native handle's
 validity. Raw aliases created inside unsafe are not lifetime checked.
 
+Sage 0.15/0.16 adds owning returns and consuming resource parameters. A return
+transfers a named local owner or owning parameter; its result must directly
+initialize another local owner. A resource parameter by value consumes a named
+owner from the caller. The callee adopts cleanup even if it never uses the value.
+Returning or forwarding it clears the callee's source before cleanup.
+
+```sage
+func identity(value: OwnedFile): OwnedFile { return value; }
+func consume(value: OwnedFile): none {}
+
+func empty_file(): OwnedFile
+{
+    unsafe
+    {
+        var owner: OwnedFile = (0 as FILE*) as OwnedFile;
+        return owner;
+    }
+}
+
+func main(): none
+{
+    var first: OwnedFile = empty_file();
+    var second: OwnedFile = identity(first);
+    consume(second);
+}
+```
+
+Neither source can be used after its move. A call cannot consume and borrow the
+same resource in either argument order. Bind calls/mutations in other arguments
+before a consuming call; C does not specify argument evaluation order. Callee
+body locals are destroyed first, then owned parameters in reverse declaration
+order. Entry points and native ABI declarations cannot accept resource values.
+
 `S190` identifies invalid destructor/representation contracts; `S191` reports
 resource operations that remain disabled; `S192` rejects unsupported adoption or
-handle casts. Owning value parameters/returns, globals, fields, arrays,
-and safe file APIs are not enabled yet. See compiler `docs/native-resource-contracts.md`.
+handle casts. `S193` requires a named returned owner and direct local binding of
+an owning producer; `S194` requires named consuming arguments and rejects call
+conflicts/effectful arguments. Resource globals, fields, arrays, and safe file
+APIs are not enabled yet. See compiler `docs/native-resource-contracts.md`.
 Ordinary variables named `resource` or `drop` retain identifier highlighting.
 
 ## Writing tests
