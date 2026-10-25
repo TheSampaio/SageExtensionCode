@@ -59,3 +59,33 @@ test("does not parse borrowing inside strings and comments", () => {
   assert.ok(scopesAt('var text: str = "&mut value";', "&").includes("string.quoted.double.sage"));
   assert.ok(scopesAt("// &mut value", "&").includes("comment.line.double-slash.sage"));
 });
+
+test("highlights a contextual native resource declaration", () => {
+  const line = "resource OwnedFile: FILE* drop fclose;";
+  assert.ok(scopesAt(line, "resource").includes("keyword.other.resource.sage"));
+  assert.ok(scopesAt(line, "OwnedFile").includes("entity.name.type.resource.sage"));
+  assert.ok(scopesAt(line, "FILE").includes("entity.name.type.native.sage"));
+  assert.ok(scopesAt(line, "drop").includes("keyword.other.resource.sage"));
+  assert.ok(scopesAt(line, "fclose").includes("entity.name.function.destructor.sage"));
+});
+
+test("keeps resource declaration scopes across lines and ends at the semicolon", () => {
+  let state = textmate.INITIAL;
+  const lines = ["resource OwnedFile:", "    FILE*", "    drop", "    fclose;", "var drop: i32 = 1;"];
+  const tokens = lines.map((line) => {
+    const result = grammar.tokenizeLine(line, state);
+    state = result.ruleStack;
+    return result.tokens;
+  });
+  assert.ok(tokens[1].some((token) => token.scopes.includes("entity.name.type.native.sage")));
+  assert.ok(tokens[2].some((token) => token.scopes.includes("keyword.other.resource.sage")));
+  assert.ok(tokens[3].some((token) => token.scopes.includes("entity.name.function.destructor.sage")));
+  assert.ok(!tokens[4].some((token) => token.scopes.includes("meta.declaration.resource.sage")));
+});
+
+test("keeps resource words ordinary outside declarations and ignores quoted or commented declarations", () => {
+  assert.ok(scopesAt("var resource: i32 = 1;", "resource").includes("variable.other.sage"));
+  assert.ok(scopesAt("var drop: i32 = 1;", "drop").includes("variable.other.sage"));
+  assert.ok(scopesAt('var text: str = "resource OwnedFile: FILE* drop fclose;";', "resource").includes("string.quoted.double.sage"));
+  assert.ok(scopesAt("// resource OwnedFile: FILE* drop fclose;", "resource").includes("comment.line.double-slash.sage"));
+});

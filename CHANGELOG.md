@@ -2,6 +2,18 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.5.0]
+
+### Added
+- Highlight Sage 0.12.0 contextual `resource ... drop ...` declarations, including
+  multiline native types and destructor names.
+- Real TextMate/Oniguruma regressions for declaration scopes, scope termination,
+  contextual identifiers, strings, and comments.
+
+### Changed
+- Document declaration-only resource metadata and S190/S191 boundaries without
+  claiming operational owned-resource cleanup.
+
 ## [0.4.3]
 
 ### Changed

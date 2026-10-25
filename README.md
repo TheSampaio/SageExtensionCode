@@ -127,6 +127,26 @@ Unsafe contexts still enforce checked Sage ownership, borrowing, and fixed-array
 bounds rules. When a boundary is missing, Run Current File displays `S164`, and
 Test Explorer reports the compiler's nonzero result as a file error.
 
+## Native resource declarations (Sage 0.12.0)
+
+The grammar highlights contextual resource names, native types, and destructors,
+including declarations split across lines:
+
+```sage
+extern native("stdio.h")
+{
+    type FILE;
+    func fclose(value: FILE*): c_int;
+    resource OwnedFile: FILE* drop fclose;
+}
+```
+
+This compiler increment validates declaration metadata and native origin. It does
+not enable resource values, automatic resource cleanup, or a safe file API yet.
+`S190` identifies invalid destructor/representation contracts; `S191` reports
+resource operations that remain disabled. See compiler `docs/native-resource-contracts.md`.
+Ordinary variables named `resource` or `drop` retain identifier highlighting.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print

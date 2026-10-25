@@ -3,6 +3,7 @@
   "name": "Sage",
   "patterns": [
     { "include": "#comments" },
+    { "include": "#native_resources" },
     { "include": "#module_names_green" },
     { "include": "#borrowing" },
     { "include": "#keywords_blue" },
@@ -16,6 +17,34 @@
     { "include": "#variables" }
   ],
   "repository": {
+    "native_resources": {
+      "name": "meta.declaration.resource.sage",
+      "begin": "\\b(resource)\\s+([a-zA-Z_]\\w*)\\s*(:)",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.resource.sage" },
+        "2": { "name": "entity.name.type.resource.sage" },
+        "3": { "name": "punctuation.separator.type.sage" }
+      },
+      "end": ";",
+      "endCaptures": { "0": { "name": "punctuation.terminator.statement.sage" } },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        {
+          "name": "meta.destructor.resource.sage",
+          "begin": "\\b(drop)\\b",
+          "beginCaptures": { "1": { "name": "keyword.other.resource.sage" } },
+          "end": "(?=;)",
+          "patterns": [
+            { "include": "#comments" },
+            { "include": "#strings" },
+            { "name": "entity.name.function.destructor.sage", "match": "\\b[a-zA-Z_]\\w*\\b" }
+          ]
+        },
+        { "name": "entity.name.type.native.sage", "match": "\\b[a-zA-Z_]\\w*\\b" },
+        { "name": "keyword.operator.pointer.sage", "match": "\\*" }
+      ]
+    },
     "borrowing": {
       "patterns": [
         {
