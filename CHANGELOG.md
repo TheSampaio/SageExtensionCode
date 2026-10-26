@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.14.0]
+
+### Changed
+- Document Sage 0.27.0 local native resource arrays, automatic cleanup, and
+  the current S197 ownership boundary.
+- Keep the active file icon theme, including Material Icon Theme.
+
 ## [0.13.0]
 
 ### Changed

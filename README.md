@@ -374,6 +374,15 @@ compiler errors through Run Current File and Test Explorer.
 See the compiler's `docs/resource-structs.md` for the supported subset. The
 Sage language icon continues to coexist with the active Material Icon Theme.
 
+## Local resource arrays (Sage 0.27.0)
+
+A fixed local array may move named native resource owners from a literal and
+automatically release its nonempty elements in reverse index order. Whole-array
+copies, element extraction, parameters, returns, and resource-struct arrays
+remain unsupported. The extension displays the compiler's S197 diagnostics
+through Run Current File and Test Explorer; it does not enforce ownership in
+the editor. See the compiler's `docs/resource-arrays.md` for details.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print
