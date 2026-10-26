@@ -348,6 +348,18 @@ Native support ships in compiler `Runtime/include`; std remains Sage-only.
 Resizing, slices and general owned strings remain future work. See
 compiler `docs/byte-buffers.md` and `Sandbox/examples/owned_byte_buffer.sg`.
 
+## Native resource replacement (Sage 0.24.0)
+
+A standalone `destination = source;` assignment between available local owners
+of the same native resource type transfers the source and destroys the old
+destination handle once. The compiler rejects self-assignment, borrowed sources,
+conflicting live borrows, and later use of the moved source. The extension's
+Run Current File and Test Explorer commands surface those compiler diagnostics;
+they do not perform ownership analysis in the editor.
+
+See the compiler's `docs/native-resource-contracts.md` and
+`tests/native-resource-reassignment.ps1` for the exact contract and validation.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print
