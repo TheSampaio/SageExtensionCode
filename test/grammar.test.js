@@ -94,3 +94,23 @@ test("keeps resource words ordinary outside declarations and ignores quoted or c
   assert.ok(scopesAt('var text: str = "resource OwnedFile: FILE* drop fclose;";', "resource").includes("string.quoted.double.sage"));
   assert.ok(scopesAt("// resource OwnedFile: FILE* drop fclose;", "resource").includes("comment.line.double-slash.sage"));
 });
+
+test("highlights contextual C++ interop declarations", () => {
+  const block = 'extern cpp geo("counter.hpp") {';
+  assert.ok(scopesAt(block, "extern").includes("keyword.other.sage"));
+  assert.ok(scopesAt(block, "cpp").includes("storage.modifier.cpp.sage"));
+  assert.ok(scopesAt(block, "geo").includes("entity.name.namespace.sage"));
+  const handle = "class Counter = demo::Counter;";
+  assert.ok(scopesAt(handle, "class").includes("keyword.other.class.sage"));
+  assert.ok(scopesAt(handle, "Counter").includes("entity.name.type.class.sage"));
+  assert.ok(scopesAt(handle, "demo").includes("entity.name.namespace.sage"));
+  assert.ok(scopesAt('source "counter.cpp";', "source").includes("keyword.other.source.sage"));
+  assert.ok(scopesAt("func create(start: c_int): Counter* = new;", "new").includes("keyword.control.sage"));
+});
+
+test("keeps C++ interop words ordinary outside their declarations", () => {
+  assert.ok(!scopesAt('extern cpp("stdlib.h") {', "cpp").includes("storage.modifier.cpp.sage"));
+  assert.ok(scopesAt("var class: i32 = 1;", "class").includes("variable.other.sage"));
+  assert.ok(scopesAt("var source: i32 = 1;", "source").includes("variable.other.sage"));
+  assert.ok(scopesAt('var text: str = "source x";', "source").includes("string.quoted.double.sage"));
+});

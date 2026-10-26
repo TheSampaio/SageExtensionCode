@@ -390,6 +390,29 @@ releases their fields in reverse order. The extension displays the compiler's
 S196/S197 diagnostics through Run Current File and Test Explorer; it does not enforce ownership in
 the editor. See the compiler's `docs/resource-arrays.md` for details.
 
+## C++ interop and native sources (Sage 0.30.0–0.31.0)
+
+The grammar highlights `extern cpp` blocks, `class` handle declarations, and
+`source` entries. These words stay ordinary identifiers elsewhere, and a C block
+named `cpp` keeps its usual highlighting.
+
+```sage
+extern cpp lib("tally.hpp")
+{
+    source "tally.cpp";
+    class Tally = lib::Tally;
+    func create(start: c_int): Tally* = new;
+    func add(tally: Tally*, amount: c_int): c_int = .add;
+    func destroy(tally: Tally*): none = delete;
+    resource OwnedTally: Tally* drop destroy;
+}
+```
+
+The compiler generates `extern "C"` adapters and builds declared `.c`/`.cpp`
+sources; projects with C++ need `g++` next to `gcc` on PATH. Run Current File and
+Test Explorer show adapter, S210 contract, and S211 source diagnostics as compiler
+errors. See the compiler's `docs/cpp-interop.md` for the supported subset.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print

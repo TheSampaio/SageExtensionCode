@@ -4,6 +4,7 @@
   "patterns": [
     { "include": "#comments" },
     { "include": "#native_resources" },
+    { "include": "#native_interop" },
     { "include": "#module_names_green" },
     { "include": "#borrowing" },
     { "include": "#keywords_blue" },
@@ -43,6 +44,29 @@
         },
         { "name": "entity.name.type.native.sage", "match": "\\b[a-zA-Z_]\\w*\\b" },
         { "name": "keyword.operator.pointer.sage", "match": "\\*" }
+      ]
+    },
+    "native_interop": {
+      "patterns": [
+        {
+          "match": "\\b(extern)\\s+(cpp)\\s+([a-zA-Z_]\\w*)",
+          "captures": {
+            "1": { "name": "keyword.other.sage" },
+            "2": { "name": "storage.modifier.cpp.sage" },
+            "3": { "name": "entity.name.namespace.sage" }
+          }
+        },
+        {
+          "match": "\\b(class)\\s+([a-zA-Z_]\\w*)\\s*(?==)",
+          "captures": {
+            "1": { "name": "keyword.other.class.sage" },
+            "2": { "name": "entity.name.type.class.sage" }
+          }
+        },
+        {
+          "match": "\\b(source)\\s*(?=\")",
+          "captures": { "1": { "name": "keyword.other.source.sage" } }
+        }
       ]
     },
     "borrowing": {

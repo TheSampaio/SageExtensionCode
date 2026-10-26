@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.18.0]
+
+### Added
+- Highlight contextual `extern cpp` blocks, `class` handle declarations, and
+  `source` entries for Sage 0.30.0 C++ interop and 0.31.0 native sources.
+- Document C++ adapter requirements (`g++`) and S210/S211 diagnostics.
+- Preserve the active file icon theme, including Material Icon Theme.
+
 ## [0.17.0]
 
 ### Changed
