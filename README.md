@@ -284,13 +284,30 @@ Both return `ByteTransfer { count: u32; eof: b8; failed: b8; }`. Count remains
 meaningful on partial failure. A clean EOF may include bytes; an exact read does
 not predict EOF. Once native input starts, target length becomes count, including
 zero at EOF/error, and old suffix bytes are hidden. Invalid owners/limits and
-positioning failures preserve the target. Zero limit with valid owners is a
-no-op that preserves contents and does not probe EOF.
+positioning failures preserve the target. Zero limit for a permitted operation
+with valid owners is a no-op that preserves contents and does not probe EOF.
 
 Writes preserve the source and always return `eof=false`. A short write is a
 failure; transferred bytes are not rolled back. Successful output can remain
 buffered, so check flush and consuming close separately. There is no automatic
 retry after native errors. See compiler `docs/byte-files.md` for the full contract.
+
+Since Sage 0.23.0, `open_read_bytes(path: u8[260], length: u16)` opens existing
+binary input without truncating it. It uses the same bounded printable ASCII
+prefix as `create_bytes`. Missing/unreadable files or invalid paths return an
+empty owner; missing files are never created. The existing constructors keep
+their creation/truncation behavior.
+
+`can_write(&file)` reports the handle's acquired mode, preserved through moves and
+owning returns. It is false for read-only and empty owners and does not guarantee
+OS permissions or future I/O success. Read-only handles permit byte/block reads,
+positioning and consuming close. They reject `write_byte` and `flush` with false;
+`write_buffer` returns count=0, eof=false, failed=true, even for zero limit.
+These are runtime mode checks on the existing `ByteFile` resource type. Rejected
+output never reaches native stdio or changes input position.
+
+General append/update modes and Unicode paths remain unfinished. Native support
+stays with the compiler in `Runtime/include`; std contains only `.sg` sources.
 
 ## Owned byte buffers (Sage 0.21.0)
 

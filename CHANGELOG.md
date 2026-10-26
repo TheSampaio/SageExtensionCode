@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.11.0]
+
+### Changed
+- Document Sage 0.23.0 existing-file acquisition through `open_read_bytes`,
+  without creation or truncation, and the `can_write` mode query.
+- Explain runtime rejection of read-only byte/block writes and flush, including
+  zero-limit output, while preserving ownership diagnostics and Material icons.
+
 ## [0.10.0]
 
 ### Changed
