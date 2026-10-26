@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.15.0]
+
+### Changed
+- Document Sage 0.28.0 local arrays of resource-containing structs and the
+  compiler-enforced S196/S197 ownership boundaries.
+- Preserve the active file icon theme, including Material Icon Theme.
+
 ## [0.14.0]
 
 ### Changed
