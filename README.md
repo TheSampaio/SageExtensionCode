@@ -360,6 +360,18 @@ they do not perform ownership analysis in the editor.
 See the compiler's `docs/native-resource-contracts.md` and
 `tests/native-resource-reassignment.ps1` for the exact contract and validation.
 
+## Local resource structs (Sage 0.25.0)
+
+A local struct literal may move named native resource owners into its direct
+fields. The compiler releases those fields in reverse declaration order on
+scope exit or early return. Omitted fields remain empty. Whole-struct copies,
+arrays, pointers to these structs, nested resource structs, calls, and returns remain unsupported and
+produce S196. The extension highlights the existing struct syntax and displays
+compiler errors through Run Current File and Test Explorer.
+
+See the compiler's `docs/resource-structs.md` for the supported subset. The
+Sage language icon continues to coexist with the active Material Icon Theme.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print

@@ -2,6 +2,14 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.12.0]
+
+### Changed
+- Document Sage 0.24.0 native resource replacement assignment and Sage 0.25.0
+  local resource fields in structs, including current S196 boundaries.
+- Continue using the Sage language icon without registering a replacement file
+  icon theme; Material Icon Theme remains under user control.
+
 ## [0.11.0]
 
 ### Changed
