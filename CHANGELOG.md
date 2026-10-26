@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.17.0]
+
+### Changed
+- Document Sage 0.30.0 named-owner replacement through nested local resource
+  struct fields and the remaining array-element boundary.
+- Preserve the active file icon theme, including Material Icon Theme.
+
 ## [0.16.0]
 
 ### Changed

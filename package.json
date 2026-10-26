@@ -1,7 +1,7 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
