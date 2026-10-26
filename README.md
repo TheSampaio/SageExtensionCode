@@ -360,13 +360,15 @@ they do not perform ownership analysis in the editor.
 See the compiler's `docs/native-resource-contracts.md` and
 `tests/native-resource-reassignment.ps1` for the exact contract and validation.
 
-## Local resource structs (Sage 0.25.0)
+## Local resource structs (Sage 0.25.0–0.26.0)
 
 A local struct literal may move named native resource owners into its direct
 fields. The compiler releases those fields in reverse declaration order on
-scope exit or early return. Omitted fields remain empty. Whole-struct copies,
-arrays, pointers to these structs, nested resource structs, calls, and returns remain unsupported and
-produce S196. The extension highlights the existing struct syntax and displays
+scope exit or early return. Since Sage 0.26.0, a local struct may also contain
+another resource struct declared earlier in the same source file. Nested literals
+receive recursive reverse-field cleanup. Omitted fields remain empty. Whole-struct
+copies, arrays, pointers to these structs, calls, and returns remain unsupported
+and produce S196. The extension highlights the existing struct syntax and displays
 compiler errors through Run Current File and Test Explorer.
 
 See the compiler's `docs/resource-structs.md` for the supported subset. The

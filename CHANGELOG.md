@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.13.0]
+
+### Changed
+- Document Sage 0.26.0 nested local resource structs, recursive cleanup, and
+  current ownership boundaries.
+- Preserve the active file icon theme, including Material Icon Theme.
+
 ## [0.12.0]
 
 ### Changed
