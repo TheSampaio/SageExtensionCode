@@ -2,6 +2,13 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [0.16.0]
+
+### Changed
+- Document Sage 0.29.0 direct resource field replacement in local structs and
+  the remaining nested and array-element boundaries.
+- Preserve the active file icon theme, including Material Icon Theme.
+
 ## [0.15.0]
 
 ### Changed
