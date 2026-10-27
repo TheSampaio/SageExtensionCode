@@ -7,19 +7,54 @@ documented in the Sage compiler repository.
 ## Features
 
 - **Syntax highlighting** for Sage (`.sg`) — keywords, memory and unsafe operations
-  (`unsafe`, `new`, `delete`), types (fixed-width + C interop aliases such as `c_int`,
-  `c_size_t`, `c_void`), modules, namespaces, strings with interpolation, and comments.
+  (`unsafe`, `new`, `delete`; the compiler requires `unsafe` for `new`/`delete`, S133), types (fixed-width + C interop aliases such as `c_int`,
+  `c_size_t`, `c_void`), modules, namespaces, strings with interpolation, comments,
+  borrows (`&T`, `&mut T`), native resources, extension methods, and `extern cpp` blocks.
 - **Sage file icon** contributed as a language icon. Your chosen file icon theme
-  remains active.
+  remains active (see [File icons and Material Icon Theme](#file-icons-and-material-icon-theme)).
 - **Run Current File** — the `Sage: Run Current File` command compiles and runs the
   active file, then writes output to the *Sage* output channel.
+- **Problems panel** — compiler errors from Run Current File, Test Explorer and the build
+  commands appear as editor squiggles and Problems entries, with the compiler's code,
+  suggestion and related locations (see [Compiler diagnostics](#compiler-diagnostics)).
+- **Build Project / Clean Build** — `Sage: Build Project` and `Sage: Clean Build` run
+  `sage build` (the latter with `--clean`) for the project that contains the active file.
+- **Graphify** — build the compiler-derived semantic index and ask for a symbol, its callers,
+  or its ownership contract without reading whole files (see [Graphify](#graphify)).
 - **Test Explorer** — `*.test.sg` files appear in the VS Code Testing view. Running them
   invokes the Sage compiler and reports each `[PASS]`/`[FAIL]` assertion as a test result.
 
+## Commands
+
+| Command | What it does |
+|---------|--------------|
+| `Sage: Run Current File` | Compile and run the active `.sg` file; errors go to Problems. |
+| `Sage: Build Project` | Run `sage build` in the project that contains the active file. |
+| `Sage: Clean Build` | Run `sage build --clean` (discards cached objects in `obj/` first). |
+| `Sage: Graphify Build Index` | Run `sage graphify build` and report how many modules changed. |
+| `Sage: Graphify Query` | Pick a query (symbol, references, callers, callees, contract, dependencies, module summary) and a name. |
+| `Sage: Graphify Find Symbol` | Where is the symbol under the cursor (or a typed name) declared? |
+| `Sage: Graphify Find Callers` | Call sites of a function. |
+| `Sage: Graphify Show Contract` | Ownership and borrow contract of a function. |
+
+A project is the nearest directory above the active file that contains `src/main.sg`. When the
+active editor is outside a project, the workspace folders are checked next.
+
 ## Requirements
 
-The Sage compiler must be available. Point the extension at it with the `sage.command`
-setting:
+The Sage compiler must be available. **Sage 0.37.0 or newer is recommended**; the grammar
+tracks the language as of Sage 0.37.3. Older compilers still run files and tests, and the
+extension degrades gracefully:
+
+| Feature | Needs Sage |
+|---------|-----------|
+| Run Current File, Test Explorer, highlighting | any version |
+| Structured diagnostics (`--diagnostics json`) | 0.35.0 (older compilers use the human format) |
+| Graphify commands | 0.35.2 |
+| Clean Build, `sage.cleanBeforeRun` (`--clean`) | 0.36.2 |
+| Building projects that use `extern cpp` (needs `g++` on PATH) | 0.30.0 |
+
+Point the extension at the compiler with the `sage.command` setting:
 
 ```jsonc
 {
@@ -33,8 +68,9 @@ setting:
 
 ## File icons and Material Icon Theme
 
-This extension does not register or activate a file icon theme. Keep **Material Icon
-Theme** selected in VS Code. Sage provides its own language icon for `.sg` files;
+This extension is compatible with **Material Icon Theme** and does not register or activate
+a file icon theme (`contributes.iconThemes` is intentionally absent, and a manifest test
+guards that). Keep **Material Icon Theme** selected in VS Code. Sage provides its own language icon for `.sg` files;
 VS Code displays it when the active file icon theme allows language icons and has
 no more specific `.sg` or Sage association. If Material Icon Theme supplies its
 own icon for `.sg`, that icon takes precedence. The extension never changes
@@ -413,6 +449,95 @@ sources; projects with C++ need `g++` next to `gcc` on PATH. Run Current File an
 Test Explorer show adapter, S210 contract, and S211 source diagnostics as compiler
 errors. See the compiler's `docs/cpp-interop.md` for the supported subset.
 
+Inside an `extern cpp` block the grammar also scopes binding targets: qualified names
+(`= demo::add`), quoted template targets (`= "demo::biggest<int>"`), `= new`, `= delete`,
+member calls (`= .increment`), the trailing contextual `catch` of recoverable bindings
+(`= safe::divide catch`, `= new catch`, `= .take catch`) and the failure queries
+`= catch` and `= catch.message` (Sage 0.31.1). `catch` stays an ordinary identifier outside
+these bindings.
+
+## Extension methods (Sage 0.34.1)
+
+The grammar highlights the contextual `method` modifier before `func` (`method func`,
+`unsafe method func`) and scopes `value.name(args)` as a method call, distinct from the
+field access `value.name`. `method` stays an ordinary identifier everywhere else.
+
+```sage
+module counter
+{
+    method func read(value: &Counter): i32 { return value.count; }
+    method func bump(value: &mut Counter, amount: i32): none { value.count = value.count + amount; }
+}
+
+func main(): none
+{
+    var c: Counter = { count = 1 };
+    c.bump(4);                 // counter::bump(&mut c, 4)
+    var total: i32 = c.read(); // method call; c.count would be a field access
+}
+```
+
+Resolution is compile-time: `S156`–`S159` report missing, ambiguous, or non-`method`
+candidates. See the compiler's `docs/extension-methods.md`.
+
+## Compiler diagnostics
+
+The extension never analyzes Sage code itself; it presents what the compiler reports.
+After **Run Current File**, a Test Explorer run, **Build Project** or **Clean Build**, the
+compiler's errors are published to the Problems panel (source `sage`, with the `Sxxx` code).
+
+- With Sage 0.35.0 or newer the extension passes `--diagnostics json`, so each Problem keeps the
+  absolute file path, the line and column, the suggestion (when the compiler has a reliable
+  one), and related locations such as the operation that moved an owner (`S140`–`S142`).
+- Older compilers print `file(line,col): error CODE: message`; the extension parses that
+  format instead. `sage.diagnosticsFormat` forces either behavior (`auto`, `json`, `human`).
+- The Sage output channel always shows the human format, so the text reads the same either way.
+- Test Explorer still reports each `[PASS]`/`[FAIL]` assertion; a compile error marks the file
+  as errored and links to the first diagnostic.
+
+For your own `tasks.json`, the extension contributes the `$sage` problem matcher for the human
+format. File names in that format are relative to the `src` directory of the workspace folder:
+
+```jsonc
+{
+  "label": "sage build",
+  "type": "shell",
+  "command": "sage build",
+  "problemMatcher": "$sage"
+}
+```
+
+New compiler codes arrive with the language: `S133` (`new`/`delete` outside `unsafe`), `S153`
+(callable not directly imported), `S156`–`S159` (methods), `S210`–`S213` (native interop).
+The compiler's `docs/diagnostics.md` lists every code with its rule.
+
+## Graphify
+
+Graphify is the compiler's deterministic semantic index (modules, `use` dependencies,
+functions with ownership contracts, structs, resources, calls). It costs nothing to run and
+returns focused answers rather than whole files. The index lives in the project's
+`obj/graphify/`.
+
+- **Graphify Build Index** refreshes it and reports how many modules were updated.
+- **Graphify Query** asks for a symbol, references, callers, callees, contract, dependencies,
+  or a module summary. **Find Symbol**, **Find Callers** and **Show Contract** are shortcuts.
+  The name defaults to the symbol under the cursor, including qualified names such as
+  `geometry::shift` and fields such as `Point.x`.
+- Answers with locations open in a pick list that jumps to the source (a single result opens
+  directly). Contracts, dependencies and module summaries print in the *Sage* output channel.
+- Every query refreshes the index first. If the project does not compile, the answer comes
+  from the last good index, a warning says so, and the errors appear in Problems.
+
+Std-library locations (`std/<name>.sg`) are listed but cannot be opened unless the file exists
+in the project. See the compiler's `docs/graphify.md`.
+
+## Build options
+
+`Sage: Build Project` runs `sage build`; `Sage: Clean Build` adds `--clean`, which deletes the
+incremental cache and objects in `obj/` before building (Sage 0.36.2 and newer; see the
+compiler's `docs/incremental-build.md`). Set `sage.cleanBeforeRun` to also pass `--clean` on
+every Run Current File and Test Explorer run.
+
 ## Writing tests
 
 Tests are ordinary Sage programs that use the `test` standard-library module and print
@@ -432,10 +557,12 @@ Open the **Testing** view and press *Run* — each assertion shows up as an indi
 
 ## Settings
 
-| Setting          | Default          | Description                                             |
-|------------------|------------------|---------------------------------------------------------|
-| `sage.command`   | `sage`           | Command used to invoke the compiler (path or launcher). |
-| `sage.testGlob`  | `**/*.test.sg`   | Glob used to discover test files.                       |
+| Setting                  | Default          | Description                                                                 |
+|--------------------------|------------------|-----------------------------------------------------------------------------|
+| `sage.command`           | `sage`           | Command used to invoke the compiler (path or launcher).                     |
+| `sage.testGlob`          | `**/*.test.sg`   | Glob used to discover test files.                                           |
+| `sage.diagnosticsFormat` | `auto`           | `auto` uses `--diagnostics json` when the compiler supports it (0.35.0+); `json` forces it; `human` parses the human format. |
+| `sage.cleanBeforeRun`    | `false`          | Pass `--clean` on Run Current File and Test Explorer runs (Sage 0.36.2+).   |
 
 ## Development
 
@@ -447,7 +574,12 @@ local checkout to the wrapper as a Git submodule/gitlink.
 
 This extension is authored in plain JavaScript, so it runs without a build step.
 Press `F5` in VS Code to launch an Extension Development Host.
-Run `npm test` to check command parsing, test output parsing, and the extension manifest.
+Run `npm test` for the grammar (tokenized with the VS Code regex engine), diagnostics and
+Graphify parsing, project discovery, process handling and manifest tests; none needs a VS Code
+runtime. `npm run check` syntax-checks every JavaScript file.
+
+Layout: `lib/` holds pure, VS Code-free helpers (unit-tested); `host/` and `commands/` hold
+the code that touches the VS Code API; `extension.js` wires them together.
 
 Install development tools with `npm ci --ignore-scripts`, then run `npm run check`
 and `npm run package` to produce a local VSIX. Development dependencies and tests

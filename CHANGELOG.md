@@ -2,7 +2,7 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
-## [Unreleased]
+## [0.19.0]
 
 ### Added
 - Highlight Sage 0.34.1 extension methods: the contextual `method` modifier
@@ -32,6 +32,16 @@ All notable changes to the Sage VS Code extension are documented here.
   dependencies and module summaries print in the Sage output channel. When the
   project does not compile, the answer is marked as coming from the last good
   index and the errors appear in the Problems panel.
+
+### Changed
+- README documents the commands, settings, requirements (Sage 0.37.0 or newer
+  recommended, with the minimum compiler per feature), diagnostics, Graphify,
+  extension methods, C++ binding targets, and the Material Icon Theme
+  compatibility guarantee.
+- Package metadata gains `bugs` and `homepage`; the repository stays
+  `TheSampaio/SageExtensionCode` under the MIT license.
+- The extension code is split into `lib/` (pure, unit-tested), `host/` and
+  `commands/` (VS Code API), with `extension.js` wiring them together.
 
 ## [0.18.0]
 

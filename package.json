@@ -1,8 +1,8 @@
 {
   "name": "sage-lang",
   "displayName": "Sage Programming Language",
-  "version": "0.18.0",
-  "description": "Sage language support, commands, and Test Explorer integration for Visual Studio Code.",
+  "version": "0.19.0",
+  "description": "Sage language support, diagnostics, build and Graphify commands, and Test Explorer integration for Visual Studio Code.",
   "publisher": "TheSampaio",
   "license": "MIT",
   "icon": "./icons/sage-icon.png",
@@ -16,6 +16,10 @@
     "type": "git",
     "url": "https://github.com/TheSampaio/SageExtensionCode.git"
   },
+  "bugs": {
+    "url": "https://github.com/TheSampaio/SageExtensionCode/issues"
+  },
+  "homepage": "https://github.com/TheSampaio/SageExtensionCode/tree/codex/sage-extension#readme",
   "categories": [
     "Programming Languages",
     "Testing"
@@ -24,7 +28,8 @@
     "sage",
     "sage-lang",
     "transpiler",
-    "systems"
+    "systems",
+    "graphify"
   ],
   "engines": {
     "vscode": "^1.75.0"

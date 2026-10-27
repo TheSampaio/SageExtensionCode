@@ -93,3 +93,26 @@ test("contributes the Graphify commands", () => {
     assert.ok(ids.includes(`sage.graphify.${id}`), id);
   }
 });
+
+test("documents the packaged version in the changelog and keeps repository metadata", () => {
+  const root = path.join(__dirname, "..");
+  const manifest = require("../package.json");
+  const changelog = fs.readFileSync(path.join(root, "CHANGELOG.md"), "utf8");
+  assert.ok(changelog.includes(`## [${manifest.version}]`), `CHANGELOG has no entry for ${manifest.version}`);
+  assert.equal(require("../package-lock.json").version, manifest.version);
+  assert.equal(manifest.license, "MIT");
+  assert.equal(manifest.repository.url, "https://github.com/TheSampaio/SageExtensionCode.git");
+  assert.ok(fs.existsSync(path.join(root, "LICENSE")));
+});
+
+test("documents every command and setting in the README", () => {
+  const readme = fs.readFileSync(path.join(__dirname, "../README.md"), "utf8");
+  const contributes = require("../package.json").contributes;
+  for (const command of contributes.commands) {
+    assert.ok(readme.includes(`\`Sage: ${command.title}\``), `README does not document ${command.title}`);
+  }
+  for (const setting of Object.keys(contributes.configuration.properties)) {
+    assert.ok(readme.includes(`\`${setting}\``), `README does not document ${setting}`);
+  }
+  assert.ok(readme.includes("Material Icon Theme"));
+});
