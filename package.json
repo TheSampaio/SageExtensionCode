@@ -8,7 +8,7 @@
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js",
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js",
     "check": "node --check extension.js",
     "package": "vsce package --no-dependencies"
   },

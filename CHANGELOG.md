@@ -2,6 +2,17 @@
 
 All notable changes to the Sage VS Code extension are documented here.
 
+## [Unreleased]
+
+### Added
+- Highlight Sage 0.34.1 extension methods: the contextual `method` modifier
+  before `func` (`method func`, `unsafe method func`) and `expr.name(args)` calls,
+  scoped as method calls and distinct from field access (`expr.name`).
+- Highlight `extern cpp` binding targets inside the block: qualified names,
+  quoted template targets, `= new`, `= delete`, `= .member`, trailing `catch`,
+  and the `= catch` / `= catch.message` failure queries.
+- Grammar tests for each new construct, plus a shared tokenizer test helper.
+
 ## [0.18.0]
 
 ### Added

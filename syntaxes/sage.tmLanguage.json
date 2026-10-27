@@ -7,12 +7,14 @@
     { "include": "#native_interop" },
     { "include": "#module_names_green" },
     { "include": "#borrowing" },
+    { "include": "#method_declarations" },
     { "include": "#keywords_blue" },
     { "include": "#keywords_control_purple" },
     { "include": "#storage_types_green" },
     { "include": "#namespaces_green" },
     { "include": "#constants" },
     { "include": "#strings" },
+    { "include": "#member_access" },
     { "include": "#functions" },
     { "include": "#numbers" },
     { "include": "#variables" }
@@ -48,24 +50,99 @@
     },
     "native_interop": {
       "patterns": [
+        { "include": "#extern_cpp_block" },
+        { "include": "#class_handle" },
+        { "include": "#native_source" }
+      ]
+    },
+    "extern_cpp_block": {
+      "name": "meta.extern.cpp.sage",
+      "begin": "\\b(extern)\\s+(cpp)\\s+([a-zA-Z_]\\w*)",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.sage" },
+        "2": { "name": "storage.modifier.cpp.sage" },
+        "3": { "name": "entity.name.namespace.sage" }
+      },
+      "end": "\\}",
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#class_handle" },
+        { "include": "#native_source" },
+        { "include": "#cpp_binding_target" },
+        { "include": "$self" }
+      ]
+    },
+    "class_handle": {
+      "name": "meta.declaration.class-handle.sage",
+      "begin": "\\b(class)\\s+([a-zA-Z_]\\w*)\\s*(=)",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.class.sage" },
+        "2": { "name": "entity.name.type.class.sage" }
+      },
+      "end": "(;)|$",
+      "endCaptures": { "1": { "name": "punctuation.terminator.statement.sage" } },
+      "patterns": [
+        { "include": "#comments" },
+        { "name": "entity.name.namespace.sage", "match": "\\b[a-zA-Z_]\\w*(?=\\s*::)" },
+        { "name": "entity.name.type.class.sage", "match": "\\b[a-zA-Z_]\\w*\\b" }
+      ]
+    },
+    "native_source": {
+      "match": "\\b(source)\\s*(?=\")",
+      "captures": { "1": { "name": "keyword.other.source.sage" } }
+    },
+    "cpp_binding_target": {
+      "name": "meta.binding-target.cpp.sage",
+      "begin": "(=)",
+      "end": "(;)|(?=\\})",
+      "endCaptures": { "1": { "name": "punctuation.terminator.statement.sage" } },
+      "patterns": [
+        { "include": "#comments" },
+        { "name": "string.quoted.double.target.sage", "begin": "\"", "end": "\"" },
+        { "name": "keyword.control.sage", "match": "\\b(new|delete)\\b" },
         {
-          "match": "\\b(extern)\\s+(cpp)\\s+([a-zA-Z_]\\w*)",
+          "match": "\\b(catch)\\b(?:(\\.)(message)\\b)?",
           "captures": {
-            "1": { "name": "keyword.other.sage" },
-            "2": { "name": "storage.modifier.cpp.sage" },
-            "3": { "name": "entity.name.namespace.sage" }
+            "1": { "name": "keyword.control.catch.sage" },
+            "2": { "name": "punctuation.accessor.sage" },
+            "3": { "name": "variable.other.property.sage" }
           }
         },
         {
-          "match": "\\b(class)\\s+([a-zA-Z_]\\w*)\\s*(?==)",
+          "match": "(\\.)\\s*([a-zA-Z_]\\w*)",
           "captures": {
-            "1": { "name": "keyword.other.class.sage" },
-            "2": { "name": "entity.name.type.class.sage" }
+            "1": { "name": "punctuation.accessor.sage" },
+            "2": { "name": "entity.name.function.member.sage" }
+          }
+        },
+        { "name": "entity.name.namespace.sage", "match": "\\b[a-zA-Z_]\\w*(?=\\s*::)" },
+        { "name": "entity.name.function.sage", "match": "\\b[a-zA-Z_]\\w*\\b" }
+      ]
+    },
+    "method_declarations": {
+      "patterns": [
+        {
+          "match": "\\b(method)\\b(?=\\s+func\\b)",
+          "captures": { "1": { "name": "storage.modifier.method.sage" } }
+        }
+      ]
+    },
+    "member_access": {
+      "patterns": [
+        {
+          "name": "meta.method-call.sage",
+          "match": "(\\.)\\s*([a-zA-Z_]\\w*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "punctuation.accessor.sage" },
+            "2": { "name": "entity.name.function.method.sage" }
           }
         },
         {
-          "match": "\\b(source)\\s*(?=\")",
-          "captures": { "1": { "name": "keyword.other.source.sage" } }
+          "match": "(\\.)\\s*([a-zA-Z_]\\w*)",
+          "captures": {
+            "1": { "name": "punctuation.accessor.sage" },
+            "2": { "name": "variable.other.property.sage" }
+          }
         }
       ]
     },
