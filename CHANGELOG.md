@@ -12,6 +12,13 @@ All notable changes to the Sage VS Code extension are documented here.
   quoted template targets, `= new`, `= delete`, `= .member`, trailing `catch`,
   and the `= catch` / `= catch.message` failure queries.
 - Grammar tests for each new construct, plus a shared tokenizer test helper.
+- Compiler errors appear in the Problems panel after **Sage: Run Current File**
+  and Test Explorer runs. The extension asks Sage 0.35.0+ for
+  `--diagnostics json` (code, position, rule, related locations, suggestion) and
+  falls back to parsing `file(line,col): error CODE: message` for older compilers.
+  The `sage.diagnosticsFormat` setting (`auto`, `json`, `human`) controls this.
+- `$sage` problem matcher for tasks that print the human diagnostics format.
+- `npm run check` now syntax-checks every JavaScript file.
 
 ## [0.18.0]
 

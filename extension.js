@@ -5,56 +5,23 @@
 //   * A Test Explorer runner that discovers *.test.sg files, runs them through the
 //     Sage compiler, and parses the "[PASS] name" / "[FAIL] name (detail)" lines each
 //     assertion prints (see the `test` standard-library module).
+//   * Compiler diagnostics in the Problems panel. Compilers that support
+//     `--diagnostics json` (Sage 0.35.0+) are asked for structured output; older ones
+//     fall back to parsing the human format.
 //
 // Authored in plain JavaScript so the extension runs without a build step.
 
 const vscode = require("vscode");
-const cp = require("child_process");
 const path = require("path");
-const { parseCommand } = require("./lib/command");
 const { parseResults } = require("./lib/test-results");
-
-/** Resolves the configured compiler command into { program, baseArgs }. */
-function resolveCompiler() {
-  const command = vscode.workspace.getConfiguration("sage").get("command", "sage");
-  const [program, ...baseArgs] = parseCommand(command);
-  return { program, baseArgs };
-}
-
-/** Runs the Sage compiler on a file and resolves with its combined output. */
-function runCompiler(filePath) {
-  return new Promise((resolve) => {
-    let program;
-    let baseArgs;
-    try {
-      ({ program, baseArgs } = resolveCompiler());
-    } catch (err) {
-      resolve({ output: err.message, code: -1 });
-      return;
-    }
-    let output = "";
-    let proc;
-    try {
-      proc = cp.spawn(program, [...baseArgs, filePath], {
-        cwd: path.dirname(filePath),
-        windowsHide: true
-      });
-    } catch (err) {
-      resolve({ output: `Failed to launch Sage compiler ('${program}'): ${err.message}`, code: -1 });
-      return;
-    }
-    proc.stdout.on("data", (d) => (output += d.toString()));
-    proc.stderr.on("data", (d) => (output += d.toString()));
-    proc.on("error", (err) => resolve({ output: output + `\n${err.message}`, code: -1 }));
-    proc.on("close", (code) => resolve({ output, code }));
-  });
-}
+const { runCompiler } = require("./host/compiler");
+const { DiagnosticPublisher } = require("./host/problems");
 
 // --------------------------------------------------------------------------
 // Run Current File command
 // --------------------------------------------------------------------------
 
-async function runCurrentFile(channel) {
+async function runCurrentFile(channel, publisher) {
   const editor = vscode.window.activeTextEditor;
   if (!editor || editor.document.languageId !== "sage") {
     vscode.window.showWarningMessage("Sage: open a .sg file to run it.");
@@ -67,7 +34,8 @@ async function runCurrentFile(channel) {
   channel.show(true);
   channel.appendLine(`> Running ${path.basename(filePath)} ...\n`);
 
-  const { output, code } = await runCompiler(filePath);
+  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath));
+  publisher.publish(filePath, found);
   channel.appendLine(output.trimEnd());
   if (code !== 0) channel.appendLine(`Sage exited with code ${code}.`);
 }
@@ -104,12 +72,16 @@ async function discoverAllTests(controller) {
   toDelete.forEach((id) => controller.items.delete(id));
 }
 
-async function runFileTest(controller, run, fileItem) {
+async function runFileTest(controller, run, publisher, fileItem) {
   run.started(fileItem);
   const started = Date.now();
-  const { output, code } = await runCompiler(fileItem.uri.fsPath);
+  const filePath = fileItem.uri.fsPath;
+  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath));
+  const location = publisher.publish(filePath, found);
   if (code !== 0) {
-    run.errored(fileItem, new vscode.TestMessage(output.trim() || `Sage exited with code ${code}.`));
+    const message = new vscode.TestMessage(output.trim() || `Sage exited with code ${code}.`);
+    if (location) message.location = location;
+    run.errored(fileItem, message);
     return;
   }
   const results = parseResults(output);
@@ -148,7 +120,7 @@ async function runFileTest(controller, run, fileItem) {
   }
 }
 
-async function runHandler(controller, request, token) {
+async function runHandler(controller, publisher, request, token) {
   const run = controller.createTestRun(request);
   const queue = [];
 
@@ -166,7 +138,7 @@ async function runHandler(controller, request, token) {
       if (!fileItem || visited.has(fileItem.id)) continue;
       if (request.exclude && request.exclude.includes(fileItem)) continue;
       visited.add(fileItem.id);
-      await runFileTest(controller, run, fileItem);
+      await runFileTest(controller, run, publisher, fileItem);
     }
   } finally {
     run.end();
@@ -181,8 +153,11 @@ function activate(context) {
   const channel = vscode.window.createOutputChannel("Sage");
   context.subscriptions.push(channel);
 
+  const publisher = new DiagnosticPublisher();
+  context.subscriptions.push(publisher);
+
   context.subscriptions.push(
-    vscode.commands.registerCommand("sage.runFile", () => runCurrentFile(channel))
+    vscode.commands.registerCommand("sage.runFile", () => runCurrentFile(channel, publisher))
   );
 
   const controller = vscode.tests.createTestController("sageTests", "Sage Tests");
@@ -195,7 +170,7 @@ function activate(context) {
   controller.createRunProfile(
     "Run",
     vscode.TestRunProfileKind.Run,
-    (request, token) => runHandler(controller, request, token),
+    (request, token) => runHandler(controller, publisher, request, token),
     true
   );
 

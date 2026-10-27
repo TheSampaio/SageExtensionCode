@@ -11,3 +11,4 @@ package-lock.json
 jsconfig.json
 CLAUDE.md
 **/*.map
+scripts/**

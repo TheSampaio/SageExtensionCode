@@ -8,8 +8,8 @@
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js",
-    "check": "node --check extension.js",
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js test/diagnostics.test.js test/process.test.js",
+    "check": "node scripts/check.js",
     "package": "vsce package --no-dependencies"
   },
   "repository": {
@@ -58,6 +58,25 @@
         "path": "./syntaxes/sage.tmLanguage.json"
       }
     ],
+    "problemMatchers": [
+      {
+        "name": "sage",
+        "owner": "sage",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}/src"
+        ],
+        "pattern": {
+          "regexp": "^(.+)\\((\\d+),(\\d+)\\): (error|warning) (S\\d+): (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+      }
+    ],
     "commands": [
       {
         "command": "sage.runFile",
@@ -77,6 +96,21 @@
           "type": "string",
           "default": "**/*.test.sg",
           "description": "Glob pattern used to discover Sage test files for the Test Explorer."
+        },
+        "sage.diagnosticsFormat": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "json",
+            "human"
+          ],
+          "enumDescriptions": [
+            "Ask the compiler for structured diagnostics when its version supports them (Sage 0.35.0 or newer), otherwise parse the human format.",
+            "Always pass --diagnostics json. Requires Sage 0.35.0 or newer.",
+            "Never pass --diagnostics; parse the human format `file(line,col): error CODE: message`."
+          ],
+          "markdownDescription": "Diagnostics format requested from the compiler when **Run Current File** or the Test Explorer show errors in the Problems panel."
         }
       }
     }
