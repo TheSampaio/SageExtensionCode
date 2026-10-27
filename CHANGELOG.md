@@ -19,6 +19,11 @@ All notable changes to the Sage VS Code extension are documented here.
   The `sage.diagnosticsFormat` setting (`auto`, `json`, `human`) controls this.
 - `$sage` problem matcher for tasks that print the human diagnostics format.
 - `npm run check` now syntax-checks every JavaScript file.
+- **Sage: Build Project** and **Sage: Clean Build** run `sage build` (the latter with
+  `--clean`, Sage 0.36.2+) in the project that contains the active file, publishing
+  any compiler errors to the Problems panel.
+- `sage.cleanBeforeRun` setting to pass `--clean` on Run Current File and Test
+  Explorer runs (off by default).
 
 ## [0.18.0]
 

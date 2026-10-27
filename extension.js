@@ -14,8 +14,9 @@
 const vscode = require("vscode");
 const path = require("path");
 const { parseResults } = require("./lib/test-results");
-const { runCompiler } = require("./host/compiler");
+const { runCompiler, configuredFlags } = require("./host/compiler");
 const { DiagnosticPublisher } = require("./host/problems");
+const { registerBuildCommands } = require("./commands/build");
 
 // --------------------------------------------------------------------------
 // Run Current File command
@@ -34,7 +35,7 @@ async function runCurrentFile(channel, publisher) {
   channel.show(true);
   channel.appendLine(`> Running ${path.basename(filePath)} ...\n`);
 
-  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath));
+  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath), configuredFlags());
   publisher.publish(filePath, found);
   channel.appendLine(output.trimEnd());
   if (code !== 0) channel.appendLine(`Sage exited with code ${code}.`);
@@ -76,7 +77,7 @@ async function runFileTest(controller, run, publisher, fileItem) {
   run.started(fileItem);
   const started = Date.now();
   const filePath = fileItem.uri.fsPath;
-  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath));
+  const { output, code, diagnostics: found } = await runCompiler([filePath], path.dirname(filePath), configuredFlags());
   const location = publisher.publish(filePath, found);
   if (code !== 0) {
     const message = new vscode.TestMessage(output.trim() || `Sage exited with code ${code}.`);
@@ -159,6 +160,8 @@ function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("sage.runFile", () => runCurrentFile(channel, publisher))
   );
+
+  registerBuildCommands(context, channel, publisher);
 
   const controller = vscode.tests.createTestController("sageTests", "Sage Tests");
   context.subscriptions.push(controller);

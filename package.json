@@ -8,7 +8,7 @@
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js test/diagnostics.test.js test/process.test.js",
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js test/diagnostics.test.js test/process.test.js test/project.test.js",
     "check": "node scripts/check.js",
     "package": "vsce package --no-dependencies"
   },
@@ -82,6 +82,16 @@
         "command": "sage.runFile",
         "title": "Run Current File",
         "category": "Sage"
+      },
+      {
+        "command": "sage.buildProject",
+        "title": "Build Project",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.cleanBuild",
+        "title": "Clean Build",
+        "category": "Sage"
       }
     ],
     "configuration": {
@@ -96,6 +106,11 @@
           "type": "string",
           "default": "**/*.test.sg",
           "description": "Glob pattern used to discover Sage test files for the Test Explorer."
+        },
+        "sage.cleanBeforeRun": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Pass `--clean` to the compiler for **Run Current File** and Test Explorer runs, deleting cached objects in `obj/` first. Needs Sage 0.36.2 or newer. Use **Sage: Clean Build** for a one-off clean build."
         },
         "sage.diagnosticsFormat": {
           "type": "string",

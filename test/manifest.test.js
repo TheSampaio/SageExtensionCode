@@ -57,3 +57,22 @@ test("declares the diagnostics format setting with auto as default", () => {
   assert.deepEqual(setting.enum, ["auto", "json", "human"]);
   assert.equal(setting.enumDescriptions.length, setting.enum.length);
 });
+
+test("registers every contributed command with the Sage category and no title prefix", () => {
+  const commands = require("../package.json").contributes.commands;
+  for (const command of commands) {
+    assert.equal(command.category, "Sage", command.command);
+    assert.ok(!command.title.startsWith("Sage"), command.title);
+    assert.match(command.command, /^sage\.[A-Za-z.]+$/);
+  }
+  const ids = commands.map((command) => command.command);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(ids.includes("sage.buildProject"));
+  assert.ok(ids.includes("sage.cleanBuild"));
+});
+
+test("declares the clean-before-run setting as off by default", () => {
+  const setting = require("../package.json").contributes.configuration.properties["sage.cleanBeforeRun"];
+  assert.equal(setting.type, "boolean");
+  assert.equal(setting.default, false);
+});

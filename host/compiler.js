@@ -73,4 +73,9 @@ async function runCompiler(target, cwd, extraArgs = []) {
   };
 }
 
-module.exports = { resolveCompiler, runCompiler };
+/** Flags every compile started from the editor passes, from the `sage.cleanBeforeRun` setting. */
+function configuredFlags() {
+  return vscode.workspace.getConfiguration("sage").get("cleanBeforeRun", false) ? ["--clean"] : [];
+}
+
+module.exports = { resolveCompiler, runCompiler, configuredFlags };

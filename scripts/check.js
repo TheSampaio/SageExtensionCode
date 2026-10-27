@@ -7,7 +7,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const ROOT = path.join(__dirname, "..");
-const DIRECTORIES = ["", "host", "lib", "scripts", "test", path.join("test", "support")];
+const DIRECTORIES = ["", "commands", "host", "lib", "scripts", "test", path.join("test", "support")];
 
 function javascriptFiles() {
   return DIRECTORIES.flatMap((directory) =>
