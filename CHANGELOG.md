@@ -24,6 +24,14 @@ All notable changes to the Sage VS Code extension are documented here.
   any compiler errors to the Problems panel.
 - `sage.cleanBeforeRun` setting to pass `--clean` on Run Current File and Test
   Explorer runs (off by default).
+- Graphify commands for Sage 0.35.2+, which show compiler-derived answers without
+  reading whole files: **Sage: Graphify Build Index**, **Graphify Query** (symbol,
+  references, callers, callees, contract, dependencies, module summary),
+  **Graphify Find Symbol**, **Graphify Find Callers** and **Graphify Show Contract**.
+  Location answers open in a pick list that jumps to the source; contracts,
+  dependencies and module summaries print in the Sage output channel. When the
+  project does not compile, the answer is marked as coming from the last good
+  index and the errors appear in the Problems panel.
 
 ## [0.18.0]
 

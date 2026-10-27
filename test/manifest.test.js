@@ -76,3 +76,20 @@ test("declares the clean-before-run setting as off by default", () => {
   assert.equal(setting.type, "boolean");
   assert.equal(setting.default, false);
 });
+
+test("every contributed command is registered by the extension code and vice versa", () => {
+  const root = path.join(__dirname, "..");
+  const sources = ["extension.js", ...fs.readdirSync(path.join(root, "commands")).map((name) => `commands/${name}`)];
+  const text = sources.map((source) => fs.readFileSync(path.join(root, source), "utf8")).join("\n");
+  const registered = [...text.matchAll(/"(sage\.[A-Za-z.]+)"/g)].map((match) => match[1]);
+  const contributed = require("../package.json").contributes.commands.map((command) => command.command);
+  for (const id of contributed) assert.ok(registered.includes(id), `${id} is not registered`);
+  for (const id of new Set(registered)) assert.ok(contributed.includes(id), `${id} is not contributed`);
+});
+
+test("contributes the Graphify commands", () => {
+  const ids = require("../package.json").contributes.commands.map((command) => command.command);
+  for (const id of ["build", "query", "symbol", "callers", "contract"]) {
+    assert.ok(ids.includes(`sage.graphify.${id}`), id);
+  }
+});

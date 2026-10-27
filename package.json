@@ -8,7 +8,7 @@
   "icon": "./icons/sage-icon.png",
   "main": "./extension.js",
   "scripts": {
-    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js test/diagnostics.test.js test/process.test.js test/project.test.js",
+    "test": "node --test test/command.test.js test/manifest.test.js test/test-results.test.js test/grammar.test.js test/grammar-language.test.js test/diagnostics.test.js test/process.test.js test/project.test.js test/graphify.test.js",
     "check": "node scripts/check.js",
     "package": "vsce package --no-dependencies"
   },
@@ -91,6 +91,31 @@
       {
         "command": "sage.cleanBuild",
         "title": "Clean Build",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.graphify.build",
+        "title": "Graphify Build Index",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.graphify.query",
+        "title": "Graphify Query",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.graphify.symbol",
+        "title": "Graphify Find Symbol",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.graphify.callers",
+        "title": "Graphify Find Callers",
+        "category": "Sage"
+      },
+      {
+        "command": "sage.graphify.contract",
+        "title": "Graphify Show Contract",
         "category": "Sage"
       }
     ],

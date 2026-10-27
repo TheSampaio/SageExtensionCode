@@ -5,6 +5,7 @@
 //   * A Test Explorer runner that discovers *.test.sg files, runs them through the
 //     Sage compiler, and parses the "[PASS] name" / "[FAIL] name (detail)" lines each
 //     assertion prints (see the `test` standard-library module).
+//   * "Sage: Build Project", "Sage: Clean Build" and the Graphify index/query commands.
 //   * Compiler diagnostics in the Problems panel. Compilers that support
 //     `--diagnostics json` (Sage 0.35.0+) are asked for structured output; older ones
 //     fall back to parsing the human format.
@@ -17,6 +18,7 @@ const { parseResults } = require("./lib/test-results");
 const { runCompiler, configuredFlags } = require("./host/compiler");
 const { DiagnosticPublisher } = require("./host/problems");
 const { registerBuildCommands } = require("./commands/build");
+const { registerGraphifyCommands } = require("./commands/graphify");
 
 // --------------------------------------------------------------------------
 // Run Current File command
@@ -162,6 +164,7 @@ function activate(context) {
   );
 
   registerBuildCommands(context, channel, publisher);
+  registerGraphifyCommands(context, channel, publisher);
 
   const controller = vscode.tests.createTestController("sageTests", "Sage Tests");
   context.subscriptions.push(controller);

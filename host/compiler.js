@@ -45,8 +45,8 @@ async function diagnosticsArguments(compiler) {
 
 /**
  * Runs the Sage compiler with `target` (a file, or a command such as `["build"]`) after the
- * diagnostics flag. Resolves with the human-readable output, the raw output, the exit code and
- * the parsed diagnostics, and never rejects.
+ * diagnostics flag. Resolves with the human-readable output, the raw output (plus its stdout and
+ * stderr parts), the exit code and the diagnostics of a failed run, and never rejects.
  *
  * @param {string[]} target
  * @param {string} cwd
@@ -57,7 +57,7 @@ async function runCompiler(target, cwd, extraArgs = []) {
   try {
     compiler = resolveCompiler();
   } catch (err) {
-    return { output: err.message, raw: err.message, code: -1, diagnostics: [] };
+    return { output: err.message, raw: err.message, stdout: "", stderr: err.message, code: -1, diagnostics: [] };
   }
   const flags = await diagnosticsArguments(compiler);
   const result = await runProcess(
@@ -68,6 +68,8 @@ async function runCompiler(target, cwd, extraArgs = []) {
   return {
     output: diagnostics.humanizeOutput(result.output),
     raw: result.output,
+    stdout: result.stdout,
+    stderr: result.stderr,
     code: result.code,
     diagnostics: result.code === 0 ? [] : diagnostics.parseDiagnostics(result.output)
   };
